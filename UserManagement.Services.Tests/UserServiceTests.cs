@@ -20,6 +20,20 @@ public class UserServiceTests
         result.Should().BeSameAs(users);
     }
 
+    [Fact]
+    public void FilterByActive(bool isActive)
+    {
+        var service = CreateService();
+        var users = SetupUsers();
+
+        // Act: Invokes the method under test with the arranged parameters.
+        var result = service.GetAll();
+
+        // Assert: Verifies that the action of the method under test behaves as expected.
+        result.Should().BeSameAs(users);
+
+    }
+
     private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
     {
         var users = new[]

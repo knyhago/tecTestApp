@@ -1,0 +1,38 @@
+﻿@model UserManagement.Web.DTOS.AddUserDTO
+@{
+    ViewData["Title"]="Add Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Add User</h1>
+</div>
+
+<form asp-action="SubmitForm">
+    <div>
+        <label hidden for="Id">Id</label>
+        <input hidden class="form-control" type="text" id="Id" name="Id" asp-for=Id />
+    </div>
+
+    <div>
+        <label class="mt-4" for="Forename">Forename</label>
+        <input class="form-control" type="text" id="Forename" name="Forename" asp-for=Forename/>
+    </div>
+
+    <div>
+        <label class="mt-4" for="Surname">Surname</label>
+        <input class="form-control" type="text" id="Surname" name="Surname" asp-for=Surname/>
+    </div>
+
+    <div>
+        <label class="mt-4" for="DateOfBirth">Date of Birth</label>
+        <input class="form-control" type="date" id="DateOfBirth" name="DateOfBirth"asp-for=DateOfBirth/>
+    </div>
+
+    <div>
+        <label class="mt-4" for="Email">Email</label>
+        <input class="form-control" type="email" id="Email" name="Email"asp-for=Email />
+    </div>
+
+    <button class="btn btn-primary mt-4" type="submit">Submit</button>
+</form>
+
