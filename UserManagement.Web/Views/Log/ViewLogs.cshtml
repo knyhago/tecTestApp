@@ -31,7 +31,7 @@
             @* <td>@log.PerformedBy</td>
             <td>@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td> *@
             <td>
-                <a asp-action="LogView" asp-route-id="@log.Id" class="btn btn-sm btn-info">View</a>
+                <a asp-controller="Log" asp-action="LogView"asp-route-id="@log.Id" class="btn btn-sm btn-info">View</a>
             </td>
         </tr>
     }
@@ -39,7 +39,7 @@
 </table>
 
  <div>
-     <a asp-action="List"  class="btn btn-sm btn-secondary">Back</a>
+     <a asp-action="List" asp-controller="Users" class="btn btn-sm btn-secondary">Back</a>
 
  </div>
  </div>

@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UserManagement.Services\UserManagement.Services.csproj" />
+    <ProjectReference Include="..\UserManagement.Contracts\UserManagement.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

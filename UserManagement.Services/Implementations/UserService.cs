@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using UserManagement.Contracts.DTOS;
+using UserManagement.Contracts.Models.Users;
 using UserManagement.Data;
 using UserManagement.Data.Entities;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
-
 
 namespace UserManagement.Services.Domain.Implementations;
 
@@ -39,6 +41,19 @@ public class UserService : IUserService
     }
 
     public IEnumerable<User> GetAll() => _dataAccess.GetAll<User>();
+
+    public User GetUserById(long id)
+    {
+        var users = _dataAccess.GetAll<User>();
+
+        var user = users.First(usr=>usr.Id==id);
+
+        if(user is null) throw new Exception("User not found");
+
+        return user;
+
+
+    }
 
     public void Add(User user)
     {
@@ -86,4 +101,27 @@ public class UserService : IUserService
        _logger.LogInformation("Deleted User {Name} Id {id}",user.Forename,user.Id);
 
     }
+
+     public  UserDto ToDto(UserListItemViewModel user) =>
+                new UserDto(
+                    user.Id,
+                    user.Forename!,
+                    user.Surname!,
+                    user.DateOfBirth,
+                    user.Email!,
+                    user.IsActive
+                );
+     public  User ToEntity(UserDto userDTO) =>
+            new()
+            {
+                Id = userDTO.Id,
+                Forename = userDTO.Forename,
+                Surname = userDTO.Surname,
+                DateOfBirth = userDTO.DateOfBirth,
+                Email = userDTO.Email,
+                IsActive = true
+            };
+
+
+    
 }

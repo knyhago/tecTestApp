@@ -1,0 +1,143 @@
+﻿@using UserManagement.Contracts.DTOS
+@inject HttpClient HttpClient
+@inject NavigationManager navigation
+@page "/userList"
+
+<h3>Users List</h3>
+
+@if (FilteredUsers is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Forename</th>
+                    <th>Surname</th>
+                    <th>D.O.B</th>
+                    <th>Email</th>
+                    <th>Account Active</th>
+                    <th style="width: 1px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in FilteredUsers)
+                {
+                    <tr>
+                        <td>@user.Id</td>
+                        <td>@user.Forename</td>
+                        <td>@user.Surname</td>
+                        <td>@user.DateOfBirth.ToShortDateString()</td>
+                        <td>@user.Email</td>
+                        <td>@(user.IsActive ? "Yes" : "No")</td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-default dropdown-toggle"
+                                        @onclick="() => ToggleDropdown(user.Id)">
+                                    Actions
+                                </button>
+
+                                @if (openDropdownId == user.Id)
+                                {
+                                    <ul class="dropdown-menu show">
+                                        <li>
+                                            <NavLink class="dropdown-item" @onclick="()=>ViewLogs(user.Id)">View</NavLink>
+                                        </li>
+                                        <li>
+                                            <NavLink class="dropdown-item" @onclick="()=>EditUser(user.Id)">Edit</NavLink>
+                                        </li>
+                                        <li>
+                                            <NavLink class="dropdown-item" @onclick="() => DeleteUser(user.Id)">Delete</NavLink>
+                                        </li>
+                                    </ul>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div>
+             <a href="@("/addUser")" class="btn btn-primary float-end">
+        Add User
+    </a>
+
+    <a href="@("/allLogs")"  class="btn btn-secondary float-end">
+        All Logs 
+    </a>
+        </div>
+    </div>
+
+    <div class="btn-group" role="group">
+        <button class="btn btn-default" @onclick="ShowAll">Show All</button>
+        <button class="btn btn-default" @onclick="ShowActive">Active Only</button>
+        <button class="btn btn-default" @onclick="ShowInactive">Non Active</button>
+    </div>
+}
+
+@code {
+    private UserDto[]? users;
+    private UserDto[]? FilteredUsers;
+    private long? openDropdownId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Fetch users from API
+            users = await HttpClient.GetFromJsonAsync<UserDto[]>("https://localhost:7084/api/users");
+            FilteredUsers = users;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching users: {ex.Message}");
+        }
+    }
+
+
+    private void ToggleDropdown(long userId)
+    {
+        openDropdownId = openDropdownId == userId ? null : userId;
+    }
+
+    private void EditUser(long id)
+    {
+        navigation.NavigateTo($"/addUser/{id}"); 
+    }
+
+    private void ViewLogs(long id)
+    {
+        navigation.NavigateTo($"/viewLogs/{id}"); 
+    }
+
+    private async Task DeleteUser(long id)
+    {
+        try
+        {
+            var response = await HttpClient
+            .DeleteAsync($"https://localhost:7084/api/users/{id}");
+            
+            if (response.IsSuccessStatusCode)
+            {
+                FilteredUsers = FilteredUsers?.Where(u => u.Id != id).ToArray();
+            }
+            else
+            {
+                Console.WriteLine($"Failed to delete user {id}: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting user {id}: {ex.Message}");
+        }
+    }
+
+    private void ShowAll() => FilteredUsers = users;
+    private void ShowActive() => FilteredUsers = users?.Where(u => u.IsActive).ToArray();
+    private void ShowInactive() => FilteredUsers = users?.Where(u => !u.IsActive).ToArray();
+}

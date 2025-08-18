@@ -6,11 +6,15 @@ using Westwind.AspNetCore.Markdown;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddCors();
 builder.Services
     .AddDataAccess()
     .AddDomainServices()
     .AddMarkdown()
     .AddControllersWithViews();
+builder.Services.AddControllers();
+
     
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -20,11 +24,18 @@ Log.Logger = new LoggerConfiguration()
 
 var app = builder.Build();
 
+app.UseCors(policy => policy
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+);
+
 app.UseMarkdown();
 
 //app.UseHsts();
 //app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 
 app.UseRouting();
 //app.UseAuthorization();

@@ -1,4 +1,4 @@
-﻿@model UserManagement.Web.Models.Users.UserListViewModel
+﻿@model UserManagement.Contracts.Models.Users.UserListViewModel
 
 <h2>User List</h2>
 
@@ -43,7 +43,7 @@
                                 Actions
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="btnToggleActions">
-                                <li><a class="dropdown-item" asp-action="ViewLogs" asp-route-id="@item.Id">View</a></li>
+                                <li><a class="dropdown-item" asp-controller="Log" asp-action="ViewLogs" asp-route-id="@item.Id">View</a></li>
                                 <li><a class="dropdown-item" asp-action="AddEditUserForm" asp-route-id="@item.Id">Edit</a></li>
                                 <li><a class="dropdown-item" asp-action="DeleteUser" asp-route-id="@item.Id" >Delete</a></li>
                             </ul>
@@ -70,7 +70,7 @@
         Add User
     </a>
 
-    <a asp-controller="Users" asp-action="ViewAllLogs" class="btn btn-secondary float-end">
+    <a asp-controller="Log" asp-action="ViewAllLogs" class="btn btn-secondary float-end">
         All Logs 
     </a>
 </div>

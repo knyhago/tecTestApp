@@ -2,11 +2,12 @@
 using Microsoft.Extensions.Logging;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
-using UserManagement.Web.DTOS;
-using UserManagement.Web.Models.Users;
+using UserManagement.Contracts.DTOS;
+using UserManagement.Contracts.Models.Users;
 
 namespace UserManagement.WebMS.Controllers;
 
+//[ApiController]
 [Route("users")]
 public class UsersController : Controller
 {
@@ -43,36 +44,7 @@ public class UsersController : Controller
 
         return View(model);
     }
-    [HttpGet("Logs")]
-    public ViewResult ViewLogs(int id)
-    {
-        var logs=_logService.GetLogs();
-
-        var log =logs.Where(item=>item.UserId==id);
-        return View(log);
-       
-    }
-    [HttpGet("AllLogs")]
-    public ViewResult ViewAllLogs(int id)
-    {
-        var logs=_logService.GetLogs();
-
-        return View("ViewLogs",logs);
-       
-    }
-
-     [HttpGet("LogDetails")]
-    public ViewResult LogView(int id)
-    {
-        var logs=_logService.GetLogs();
-
-        var log =logs.First(item=>item.Id==id);
-        return View(log);
-       
-    }
-
-
-
+    
     [HttpGet("FilterList")]
      public ViewResult FilterList(bool isActive)
     {
@@ -103,50 +75,45 @@ public class UsersController : Controller
 
         if(id is not null)
         {
-            IEnumerable<User> users = _userService.GetAll();
-            User user =users.First(usr=>usr.Id == id);
-
-            var data = new AddUserDTO(
-                user.Id,
-                user.Forename,
-                user.Surname,
-                user.DateOfBirth,
-                user.Email,
-                user.IsActive
-            );
-            
+            IEnumerable<UserListItemViewModel> users = _userService.GetAll().
+            Select(p => new UserListItemViewModel
+        {
+            Id = p.Id,
+            Forename = p.Forename,
+            Surname = p.Surname,
+            Email = p.Email,
+            IsActive = p.IsActive,
+            DateOfBirth = p.DateOfBirth
+        });;
+            UserListItemViewModel user = users.First(usr => usr.Id == id);
+            var data = _userService.ToDto(user);
             return View(data);
 
         }
         return View();
     }
+
+
     //submit the form after add/edit
     [HttpPost("SubmitForm")]
-    public IActionResult SubmitForm(AddUserDTO userDTO)
+    public IActionResult SubmitForm(UserDto userDTO)
     {
-        
-        User newUser= new(){
-            Id=userDTO.Id,
-            Forename=userDTO.Forename,
-            Surname=userDTO.Surname,
-            DateOfBirth=userDTO.DateOfBirth,
-            Email=userDTO.Email,
-            IsActive=true
-        };
+        var newUser = _userService.ToEntity(userDTO);
 
-        if(newUser.Id==0)
+        if (newUser.Id == 0)
         {
             _userService.Add(newUser);
         }
-        else{
-            newUser.Id=userDTO.Id;
+        else
+        {
+            newUser.Id = userDTO.Id;
             _userService.UpdateUser(newUser);
         }
-        
+
         return RedirectToAction("List");
     }
 
-    [HttpGet("delete")]
+     [HttpGet("delete/{id}")]
     public IActionResult DeleteUser(int id)
     {
         var users = _userService.GetAll();
@@ -158,4 +125,25 @@ public class UsersController : Controller
         return RedirectToAction("List");
 
     }
+
+    // private static User ToEntity(UserDto userDTO) =>
+    //         new()
+    //         {
+    //             Id = userDTO.Id,
+    //             Forename = userDTO.Forename,
+    //             Surname = userDTO.Surname,
+    //             DateOfBirth = userDTO.DateOfBirth,
+    //             Email = userDTO.Email,
+    //             IsActive = true
+    //         };
+
+    //  private static UserDto ToDto(UserListItemViewModel user) =>
+    //             new UserDto(
+    //                 user.Id,
+    //                 user.Forename!,
+    //                 user.Surname!,
+    //                 user.DateOfBirth,
+    //                 user.Email!,
+    //                 user.IsActive
+    //             );
 }

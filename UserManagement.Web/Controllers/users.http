@@ -1,0 +1,76 @@
+# ---------------------------
+# Get all users
+# ---------------------------
+GET https://localhost:7084/api/users
+Accept: application/json
+###
+GET https://localhost:7084/api/logs
+Accept: application/json
+
+###
+GET https://localhost:7084/api/logs/10
+Accept: application/json
+
+###
+
+
+### Add a new log
+POST https://localhost:7084/api/logs/addLog
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userId": 10,
+  "action": "Created User",
+  "details": "New user account created with email test@example.com",
+  "performedBy": "admin"
+}
+###
+# ---------------------------
+# Get a single user by ID
+# ---------------------------
+GET https://localhost:7084/api/users/1
+Accept: application/json
+
+###
+
+# ---------------------------
+# Create a new user
+# ---------------------------
+POST https://localhost:7084/api/users
+Content-Type: application/json
+
+{
+  "id": 0,
+  "forename": "Kenneth",
+  "surname": "Alexander",
+  "dateOfBirth": "1995-08-18",
+  "email": "kenneth@example.com",
+  "isActive": true
+}
+
+###
+
+# ---------------------------
+# Update an existing user
+# ---------------------------
+PUT https://localhost:7084/api/users/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "forename": "Kenneth",
+  "surname": "H. Alexander",
+  "email": "kenneth@example.com",
+  "isActive": true,
+  "dateOfBirth": "1995-08-18"
+}
+
+###
+
+# ---------------------------
+# Delete a user
+# ---------------------------
+DELETE https://localhost:7084/api/users/2
+
+###

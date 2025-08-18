@@ -1,9 +1,8 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace UserManagement.Web.DTOS;
+namespace UserManagement.Contracts.DTOS;
 
-public record class AddUserDTO(
+public record class UserDto(
      long Id ,
      [Required] string  Forename ,
      [Required]string Surname,
@@ -12,3 +11,4 @@ public record class AddUserDTO(
      string Email ,
      bool IsActive 
 );
+
