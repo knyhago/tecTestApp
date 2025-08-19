@@ -1,60 +1,81 @@
+# Azure DevOps Pipeline for UserManagement solution
+# Builds Web API + Blazor WASM, runs tests, deploys to Azure Web Apps
+
 trigger:
-- main
-
+  - main
+  
 pool:
-  vmImage: 'windows-latest'
-
+    vmImage: 'windows-latest'
+  
 variables:
-  buildConfiguration: 'Release'
-  azureWebApi: 'your-api-webapp-name'
-  azureBlazor: 'your-blazor-webapp-name'
-  azureSubscription: 'your-service-connection'
-
+    solution: '**/*.sln'
+    buildConfiguration: 'Release'
+    buildPlatform: 'Any CPU'
+    webAppName: 'UserManagement'          # Azure Web App name for API
+    blazorAppName: 'BlazorApp'    # Azure Web App name for Blazor
+  
 steps:
-# Install .NET 9 SDK
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '9.0.x'
-
-# Restore NuGet packages
-- script: dotnet restore UserManagement.sln
-  displayName: 'Restore NuGet packages'
-
-# Build solution
-- script: dotnet build UserManagement.sln --configuration $(buildConfiguration) --no-restore
-  displayName: 'Build solution'
-
-# Run all unit tests
-- script: dotnet test UserManagement.sln --configuration $(buildConfiguration) --no-build --logger "trx;LogFileName=test_results.trx"
-  displayName: 'Run tests'
-
-# Publish Web API
-- script: dotnet publish UserManagement.Web -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/WebApp
-  displayName: 'Publish Web API'
-
-# Publish Blazor WebAssembly
-- script: dotnet publish UserManagement.BlazorUI -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/BlazorApp
-  displayName: 'Publish Blazor WebAssembly'
-
-# Upload artifacts
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-
-# Deploy Web API
-- task: AzureWebApp@1
-  inputs:
-    azureSubscription: '$(azureSubscription)'
-    appName: '$(azureWebApi)'
-    package: '$(Build.ArtifactStagingDirectory)/WebApp'
-    deploymentMethod: 'auto'
-
-# Deploy Blazor WASM
-- task: AzureWebApp@1
-  inputs:
-    azureSubscription: '$(azureSubscription)'
-    appName: '$(azureBlazor)'
-    package: '$(Build.ArtifactStagingDirectory)/BlazorApp'
-    deploymentMethod: 'auto'
+  # Install .NET SDK
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '9.0.x'
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+  
+  # Restore NuGet packages
+  - task: NuGetCommand@2
+    inputs:
+      restoreSolution: '$(solution)'
+  
+  # Build the solution
+  - task: DotNetCoreCLI@2
+    displayName: 'Build Solution'
+    inputs:
+      command: 'build'
+      projects: '$(solution)'
+      arguments: '--configuration $(buildConfiguration)'
+  
+  # Run tests for all test projects
+  - task: DotNetCoreCLI@2
+    displayName: 'Run Tests'
+    inputs:
+      command: 'test'
+      projects: '**/*.Tests/*.csproj'
+      arguments: '--configuration $(buildConfiguration) --no-build --collect:"XPlat Code Coverage"'
+  
+  # Publish Web API
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish Web API'
+    inputs:
+      command: 'publish'
+      projects: 'UserManagement.Web/UserManagement.Web.csproj'
+      arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/WebApp'
+      zipAfterPublish: true
+  
+  # Publish Blazor WASM
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish Blazor WASM'
+    inputs:
+      command: 'publish'
+      projects: 'UserManagement.BlazorUI/UserManagement.BlazorUI.csproj'
+      arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/BlazorApp'
+      zipAfterPublish: true
+  
+  # Deploy Web API to Azure
+  - task: AzureWebApp@1
+    displayName: 'Deploy Web API'
+    inputs:
+      azureSubscription: 'userconn'
+      appType: 'webApp'
+      appName: '$(webAppName)'
+      package: '$(Build.ArtifactStagingDirectory)/WebApp.zip'
+  
+  # Deploy Blazor WASM to Azure
+  - task: AzureWebApp@1
+    displayName: 'Deploy Blazor WASM'
+    inputs:
+      azureSubscription: 'userconn'
+      appType: 'webApp'
+      appName: '$(blazorAppName)'
+      package: '$(Build.ArtifactStagingDirectory)/BlazorApp.zip'
+  
