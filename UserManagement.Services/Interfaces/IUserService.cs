@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using UserManagement.Contracts.DTOS;
 using UserManagement.Contracts.Models.Users;
 using UserManagement.Models;
@@ -12,16 +13,16 @@ public interface IUserService
     /// </summary>
     /// <param name="isActive"></param>
     /// <returns></returns>
-    IEnumerable<User> FilterByActive(bool isActive);
-    IEnumerable<User> GetAll();
+    Task<List<User>> FilterByActiveAsync(bool isActive);
+    Task<List<User>> GetAllAsync();
 
-    User GetUserById(long id);
+    Task<User> GetUserByIdAsync(long id);
 
-    void Add(User user);
+    Task AddAsync(User user);
 
-    void UpdateUser(User user);
+    Task UpdateUserAsync(User user);
 
-    void DeleteUser (User user);
+    Task DeleteUserAsync (User user);
 
     User ToEntity(UserDto userDto);
 

@@ -1,48 +1,50 @@
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Web.Models.Users;
 using UserManagement.WebMS.Controllers;
 
-namespace UserManagement.Data.Tests;
-
-public class UserControllerTests
+namespace UserManagement.Data.Tests
 {
-    [Fact]
-    public void List_WhenServiceReturnsUsers_ModelMustContainUsers()
+    public class UserControllerTests
     {
-        // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
-        var controller = CreateController();
-        var users = SetupUsers();
+        private readonly Mock<IUserService> _userService = new();
+        private readonly Mock<ILogger<User>> _mockLogger = new();
+        private readonly Mock<ILogService> _mockLogService = new();
 
-        // Act: Invokes the method under test with the arranged parameters.
-        var result = controller.List();
+        private UsersController CreateController() =>
+            new(_userService.Object, _mockLogger.Object, _mockLogService.Object);
 
-        // Assert: Verifies that the action of the method under test behaves as expected.
-        result.Model
-            .Should().BeOfType<UserListViewModel>()
-            .Which.Items.Should().BeEquivalentTo(users);
-    }
-
-    private User[] SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
-    {
-        var users = new[]
+        private User[] SetupUsers()
         {
-            new User
+            var users = new[]
             {
-                Forename = forename,
-                Surname = surname,
-                Email = email,
-                IsActive = isActive
-            }
-        };
+                new User { Forename = "Johnny", Surname = "User", Email = "juser@example.com", IsActive = true }
+            };
 
-        _userService
-            .Setup(s => s.GetAll())
-            .Returns(users);
+            // IUserService.GetAllAsync() returns Task<IEnumerable<User>>
+            _userService.Setup(s => s.GetAllAsync())
+                    .ReturnsAsync(users.ToList());
 
-        return users;
+            return users;
+        }
+
+        [Fact]
+        public async Task List_WhenServiceReturnsUsers_ModelMustContainUsers()
+        {
+            // Arrange
+            var controller = CreateController();
+            var users = SetupUsers();
+
+            // Act
+            var result = await controller.List(); // await because it's async
+
+            // Assert
+            result.Model
+                .Should().BeOfType<UserListViewModel>()
+                .Which.Items.Should().BeEquivalentTo(users);
+        }
     }
-
-    private readonly Mock<IUserService> _userService = new();
-    private UsersController CreateController() => new(_userService.Object);
 }

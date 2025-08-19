@@ -4,6 +4,7 @@ using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Contracts.DTOS;
 using UserManagement.Contracts.Models.Users;
+using System.Threading.Tasks;
 
 namespace UserManagement.WebMS.Controllers;
 
@@ -24,9 +25,12 @@ public class UsersController : Controller
     } 
 
     [HttpGet]
-    public ViewResult List()
+    public async Task<ViewResult> List()
     {
-        var items = _userService.GetAll().Select(p => new UserListItemViewModel
+    
+        var users = await _userService.GetAllAsync();
+
+        var items = users.Select(p => new UserListItemViewModel
         {
             Id = p.Id,
             Forename = p.Forename,
@@ -34,21 +38,24 @@ public class UsersController : Controller
             Email = p.Email,
             IsActive = p.IsActive,
             DateOfBirth = p.DateOfBirth
-        });
+        }).ToList(); // Move ToList here
 
         var model = new UserListViewModel
         {
-            Items = items.ToList()
+            Items = items
         };
+
         _logger.LogInformation("Displayed whole List");
 
         return View(model);
     }
     
     [HttpGet("FilterList")]
-     public ViewResult FilterList(bool isActive)
+     public async Task<ViewResult> FilterList(bool isActive)
     {
-        var items = _userService.GetAll().Where(user=>user.IsActive==isActive)
+        var users = await _userService.GetAllAsync();
+
+        var items = users.Where(user=>user.IsActive==isActive)
         .Select(p => new UserListItemViewModel
         {
             Id = p.Id,
@@ -70,13 +77,14 @@ public class UsersController : Controller
     }
     //Form to Add a New User
     [HttpGet("AddForm")]
-    public ViewResult AddEditUserForm(int? id)
+    public async Task<ViewResult> AddEditUserForm(int? id)
     {
 
         if(id is not null)
         {
-            IEnumerable<UserListItemViewModel> users = _userService.GetAll().
-            Select(p => new UserListItemViewModel
+            var items = await _userService.GetAllAsync();
+            var users =items
+            .Select(p => new UserListItemViewModel
         {
             Id = p.Id,
             Forename = p.Forename,
@@ -96,31 +104,31 @@ public class UsersController : Controller
 
     //submit the form after add/edit
     [HttpPost("SubmitForm")]
-    public IActionResult SubmitForm(UserDto userDTO)
+    public async Task<IActionResult> SubmitForm(UserDto userDTO)
     {
         var newUser = _userService.ToEntity(userDTO);
 
         if (newUser.Id == 0)
         {
-            _userService.Add(newUser);
+           await _userService.AddAsync(newUser);
         }
         else
         {
             newUser.Id = userDTO.Id;
-            _userService.UpdateUser(newUser);
+           await _userService.UpdateUserAsync(newUser);
         }
 
         return RedirectToAction("List");
     }
 
      [HttpGet("delete/{id}")]
-    public IActionResult DeleteUser(int id)
+    public async Task<IActionResult> DeleteUser(int id)
     {
-        var users = _userService.GetAll();
+        var users =await _userService.GetAllAsync();
 
         var user = users.First(usr=>usr.Id==id);
 
-        _userService.DeleteUser(user);
+        await _userService.DeleteUserAsync(user);
 
         return RedirectToAction("List");
 

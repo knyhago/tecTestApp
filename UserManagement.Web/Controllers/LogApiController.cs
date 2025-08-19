@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using UserManagement.Data.Entities;
 using UserManagement.Services.Domain.Interfaces;
 
@@ -16,26 +17,27 @@ namespace UserManagement.Web.Controllers
             _logService = logService;
         }
 
-         public IActionResult GetAllLogs()
+         public async Task<IActionResult> GetAllLogs()
         {
-            var users = _logService.GetLogs();
+            var users =await _logService.GetLogsAsync();
 
             return Ok(users);  // returns JSON for Blazor
         }
 
         [HttpGet("{id}")]
-         public IActionResult GetLogs(int id)
+         public async Task<IActionResult> GetLogs(int id)
         {
-            var users = _logService.GetLogs()
-            .Where(x=>x.UserId==id);
+            var items =await _logService.GetLogsAsync();
+
+            var users=items.Where(x=>x.UserId==id);
 
             return Ok(users);  // returns JSON for Blazor
         }
 
          [HttpPost("addLog")]
-        public IActionResult Create([FromBody] Log log)
+        public async Task<IActionResult> Create([FromBody] Log log)
         {
-            _logService.AddLog(log);
+            await _logService.AddLogAsync(log);
             return Ok(log);
         }
 

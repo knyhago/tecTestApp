@@ -1,6 +1,5 @@
 using System.Linq;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 using UserManagement.Contracts.DTOS;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
@@ -22,10 +21,11 @@ namespace UserManagement.Web.Controllers
         }
     
 
-     public IActionResult GetAll()
+     public async Task<IActionResult> GetAll()
         {
-            var users = _userService.GetAll()
-                .Select(u => new UserDto(
+            var items =await _userService.GetAllAsync();
+
+             var users=items.Select(u => new UserDto(
                     u.Id, u.Forename, u.Surname, u.DateOfBirth,
                      u.Email, u.IsActive))
                 .ToList();
@@ -34,9 +34,9 @@ namespace UserManagement.Web.Controllers
         }
          // GET: api/users/{id}
         [HttpGet("{id}")]
-        public IActionResult GetById(long id)
+        public async Task<IActionResult> GetById(long id)
         {
-            var user = _userService.GetUserById(id);
+            var user =await _userService.GetUserByIdAsync(id);
             if (user == null) return NotFound();
 
             var dto = new UserDto(
@@ -45,20 +45,20 @@ namespace UserManagement.Web.Controllers
             return Ok(dto);
         }
           [HttpDelete("{id}")]
-        public IActionResult Delete(long id)
+        public async Task<IActionResult> Delete(long id)
         {
-            var user = _userService.GetUserById(id);
+            var user =await _userService.GetUserByIdAsync(id);
             if (user == null) return NotFound();
 
-            _userService.DeleteUser(user);
+            await _userService.DeleteUserAsync(user);
             return NoContent();  // 204, perfect for HttpClient.DeleteAsync
         }
 
          // PUT: api/users/{id}
         [HttpPut("{id}")]
-        public IActionResult Update(long id, [FromBody] User user)
+        public async Task<IActionResult> Update(long id, [FromBody] User user)
         {
-            var existingUser = _userService.GetUserById(id);
+            var existingUser =await _userService.GetUserByIdAsync(id);
             if (existingUser == null) return NotFound();
 
             existingUser.Forename = user.Forename;
@@ -67,15 +67,15 @@ namespace UserManagement.Web.Controllers
             existingUser.IsActive = user.IsActive;
             existingUser.DateOfBirth = user.DateOfBirth;
 
-            _userService.UpdateUser(existingUser);
+            await _userService.UpdateUserAsync(existingUser);
             return NoContent();
         }
 
         // POST: api/users
         [HttpPost("add")]
-        public IActionResult Create( User user)
+        public async Task<IActionResult> Create( User user)
         {
-            _userService.Add(user);
+            await _userService.AddAsync(user);
             return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
         }
 

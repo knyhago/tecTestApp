@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UserManagement.Data;
 using UserManagement.Data.Entities;
 using UserManagement.Services.Domain.Interfaces;
@@ -15,13 +15,13 @@ public class LogService:ILogService
         _dataContext=dataContext;
 
     }
-    public void AddLog(Log log){
-        _dataContext.Create(log);
+    public async Task AddLogAsync(Log log){
+        await _dataContext.Create(log);
     }
 
-    public IEnumerable<Log> GetLogs()
+    public  async Task<List<Log>> GetLogsAsync()
     {
-       return _dataContext.GetAll<Log>();
+       return await _dataContext.GetAll<Log>();
     }
 
 }

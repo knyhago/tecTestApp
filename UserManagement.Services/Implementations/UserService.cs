@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using UserManagement.Contracts.DTOS;
 using UserManagement.Contracts.Models.Users;
@@ -29,22 +30,21 @@ public class UserService : IUserService
     /// </summary>
     /// <param name="isActive"></param>
     /// <returns></returns>
-    public IEnumerable<User> FilterByActive(bool isActive)
+    public async Task<List<User>> FilterByActiveAsync(bool isActive)
     {
-        IQueryable<User> data = _dataAccess.GetAll<User>();
+        var data =await _dataAccess.GetAll<User>();
 
-        IQueryable<User> users = data.Where(user=>user.IsActive==isActive);
+        var users =data.Where(user=>user.IsActive==isActive).ToList();
 
         return users;
        
-        //throw new NotImplementedException();
     }
 
-    public IEnumerable<User> GetAll() => _dataAccess.GetAll<User>();
+    public Task<List<User>> GetAllAsync() => _dataAccess.GetAll<User>();
 
-    public User GetUserById(long id)
+    public async Task<User> GetUserByIdAsync(long id)
     {
-        var users = _dataAccess.GetAll<User>();
+        var users =await _dataAccess.GetAll<User>();
 
         var user = users.First(usr=>usr.Id==id);
 
@@ -52,15 +52,14 @@ public class UserService : IUserService
 
         return user;
 
-
     }
 
-    public void Add(User user)
+    public async Task AddAsync(User user)
     {
-        _dataAccess.Create(user);
+        await _dataAccess.Create(user);
         _logger.LogInformation("Added User {Name} Id {id}",user.Forename,user.Id);
 
-        _logService.AddLog(new Log
+       await _logService.AddLogAsync(new Log
         {
             UserId = user.Id,
             Action = "Added",
@@ -71,11 +70,11 @@ public class UserService : IUserService
 
     }
 
-    public void UpdateUser(User user)
+    public async Task UpdateUserAsync(User user)
     {
       
-      _dataAccess.Update(user);
-        _logService.AddLog(new Log
+      await _dataAccess.Update(user);
+      await  _logService.AddLogAsync(new Log
         {
             UserId = user.Id,
             Action = "Added",
@@ -87,11 +86,11 @@ public class UserService : IUserService
         _logger.LogInformation("Updated User {Name} Id {id}",user.Forename,user.Id);
     }
 
-    public void DeleteUser(User user)
+    public async Task DeleteUserAsync(User user)
     {
-        _dataAccess.Delete(user);
+        await _dataAccess.Delete(user);
 
-          _logService.AddLog(new Log
+        await  _logService.AddLogAsync(new Log
         {
             UserId = user.Id,
             Action = "Added",

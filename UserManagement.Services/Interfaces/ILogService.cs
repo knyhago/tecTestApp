@@ -1,14 +1,13 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UserManagement.Data.Entities;
 
 namespace UserManagement.Services.Domain.Interfaces;
 
 public interface ILogService
 {
-    void AddLog(Log log);
+    Task AddLogAsync(Log log);
 
-    IEnumerable<Log> GetLogs();
+    Task<List<Log>> GetLogsAsync();
 
 }

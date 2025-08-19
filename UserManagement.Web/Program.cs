@@ -1,15 +1,20 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using UserManagement.Data;
 using Westwind.AspNetCore.Markdown;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+var connectionString = builder.Configuration.GetConnectionString("AzureSqlDb");
+
+
 builder.Services.AddCors();
 builder.Services
-    .AddDataAccess()
+    .AddDataAccess(connectionString!)
     .AddDomainServices()
     .AddMarkdown()
     .AddControllersWithViews();
@@ -31,6 +36,8 @@ app.UseCors(policy => policy
 );
 
 app.UseMarkdown();
+
+app.Services.MigrateDb();
 
 //app.UseHsts();
 //app.UseHttpsRedirection();

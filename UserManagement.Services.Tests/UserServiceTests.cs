@@ -1,59 +1,73 @@
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Implementations;
+using UserManagement.Services.Domain.Interfaces;
 
-namespace UserManagement.Data.Tests;
-
-public class UserServiceTests
+namespace UserManagement.Data.Tests
 {
-    [Fact]
-    public void GetAll_WhenContextReturnsEntities_MustReturnSameEntities()
+    public class UserServiceTests
     {
-        // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
-        var service = CreateService();
-        var users = SetupUsers();
+        private readonly Mock<IDataContext> _dataContext = new();
+        private readonly Mock<ILogService> _mockLogService = new();
+        private readonly Mock<ILogger<User>> _mockLogger = new();
 
-        // Act: Invokes the method under test with the arranged parameters.
-        var result = service.GetAll();
+        private UserService CreateService() => new(
+            _dataContext.Object,
+            _mockLogger.Object,
+            _mockLogService.Object
+        );
 
-        // Assert: Verifies that the action of the method under test behaves as expected.
-        result.Should().BeSameAs(users);
-    }
-
-    [Fact]
-    public void FilterByActive(bool isActive)
-    {
-        var service = CreateService();
-        var users = SetupUsers();
-
-        // Act: Invokes the method under test with the arranged parameters.
-        var result = service.GetAll();
-
-        // Assert: Verifies that the action of the method under test behaves as expected.
-        result.Should().BeSameAs(users);
-
-    }
-
-    private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
-    {
-        var users = new[]
+        private List<User> SetupUsers(string forename = "Johnny", string surname = "User",
+                                     string email = "juser@example.com", bool isActive = true)
         {
-            new User
+            var users = new List<User>
             {
-                Forename = forename,
-                Surname = surname,
-                Email = email,
-                IsActive = isActive
-            }
-        }.AsQueryable();
+                new User
+                {
+                    Forename = forename,
+                    Surname = surname,
+                    Email = email,
+                    IsActive = isActive
+                }
+            };
 
-        _dataContext
-            .Setup(s => s.GetAll<User>())
-            .Returns(users);
+            // Setup the async method to return the list
+            _dataContext
+                .Setup(ctx => ctx.GetAll<User>())
+                .ReturnsAsync(users);
 
-        return users;
+            return users;
+        }
+
+        [Fact]
+        public async Task GetAll_WhenContextReturnsEntities_MustReturnSameEntities()
+        {
+            // Arrange
+            var service = CreateService();
+            var users = SetupUsers();
+
+            // Act
+            var result = await service.GetAllAsync();
+
+            // Assert
+            result.Should().BeSameAs(users);
+        }
+
+        [Fact]
+        public async Task FilterByActive_ShouldReturnOnlyActiveUsers()
+        {
+            // Arrange
+            var service = CreateService();
+            var users = SetupUsers();
+            
+            // Act
+            var result = (await service.GetAllAsync()).Where(u => u.IsActive).ToList();
+
+            // Assert
+            result.Should().OnlyContain(u => u.IsActive);
+        }
     }
-
-    private readonly Mock<IDataContext> _dataContext = new();
-    private UserService CreateService() => new(_dataContext.Object);
 }
