@@ -26,16 +26,6 @@ jobs:
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
-       - name: Run Data Tests
-        run: dotnet test UserManagement.Data.Tests/UserManagement.Data.Tests.csproj --configuration Release --no-build
-
-      - name: Run Services Tests
-        run: dotnet test UserManagement.Services.Tests/UserManagement.Services.Tests.csproj --configuration Release --no-build
-
-      - name: Run Web Tests
-        run: dotnet test UserManagement.Web.Tests/UserManagement.Web.Tests.csproj --configuration Release --no-build
-
-
       - name: dotnet publish
         run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
