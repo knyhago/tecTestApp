@@ -1,0 +1,60 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  azureWebApi: 'your-api-webapp-name'
+  azureBlazor: 'your-blazor-webapp-name'
+  azureSubscription: 'your-service-connection'
+
+steps:
+# Install .NET 9 SDK
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '9.0.x'
+
+# Restore NuGet packages
+- script: dotnet restore UserManagement.sln
+  displayName: 'Restore NuGet packages'
+
+# Build solution
+- script: dotnet build UserManagement.sln --configuration $(buildConfiguration) --no-restore
+  displayName: 'Build solution'
+
+# Run all unit tests
+- script: dotnet test UserManagement.sln --configuration $(buildConfiguration) --no-build --logger "trx;LogFileName=test_results.trx"
+  displayName: 'Run tests'
+
+# Publish Web API
+- script: dotnet publish UserManagement.Web -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/WebApp
+  displayName: 'Publish Web API'
+
+# Publish Blazor WebAssembly
+- script: dotnet publish UserManagement.BlazorUI -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)/BlazorApp
+  displayName: 'Publish Blazor WebAssembly'
+
+# Upload artifacts
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+
+# Deploy Web API
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: '$(azureSubscription)'
+    appName: '$(azureWebApi)'
+    package: '$(Build.ArtifactStagingDirectory)/WebApp'
+    deploymentMethod: 'auto'
+
+# Deploy Blazor WASM
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: '$(azureSubscription)'
+    appName: '$(azureBlazor)'
+    package: '$(Build.ArtifactStagingDirectory)/BlazorApp'
+    deploymentMethod: 'auto'
