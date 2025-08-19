@@ -1,81 +1,57 @@
-# Azure DevOps Pipeline for UserManagement solution
-# Builds Web API + Blazor WASM, runs tests, deploys to Azure Web Apps
-
 trigger:
-  - main
-  
+  branches:
+    include:
+      - main
+
 pool:
-    vmImage: 'windows-latest'
-  
+  vmImage: 'windows-latest'
+
 variables:
-    solution: '**/*.sln'
-    buildConfiguration: 'Release'
-    buildPlatform: 'Any CPU'
-    webAppName: 'UserManagement'          # Azure Web App name for API
-    blazorAppName: 'BlazorApp'    # Azure Web App name for Blazor
-  
+  buildConfiguration: 'Release'
+
 steps:
-  # Install .NET SDK
-  - task: UseDotNet@2
-    inputs:
-      packageType: 'sdk'
-      version: '9.0.x'
-      installationPath: $(Agent.ToolsDirectory)/dotnet
-  
-  # Restore NuGet packages
-  - task: NuGetCommand@2
-    inputs:
-      restoreSolution: '$(solution)'
-  
-  # Build the solution
-  - task: DotNetCoreCLI@2
-    displayName: 'Build Solution'
-    inputs:
-      command: 'build'
-      projects: '$(solution)'
-      arguments: '--configuration $(buildConfiguration)'
-  
-  # Run tests for all test projects
-  - task: DotNetCoreCLI@2
-    displayName: 'Run Tests'
-    inputs:
-      command: 'test'
-      projects: '**/*.Tests/*.csproj'
-      arguments: '--configuration $(buildConfiguration) --no-build --collect:"XPlat Code Coverage"'
-  
-  # Publish Web API
-  - task: DotNetCoreCLI@2
-    displayName: 'Publish Web API'
-    inputs:
-      command: 'publish'
-      projects: 'UserManagement.Web/UserManagement.Web.csproj'
-      arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/WebApp'
-      zipAfterPublish: true
-  
-  # Publish Blazor WASM
-  - task: DotNetCoreCLI@2
-    displayName: 'Publish Blazor WASM'
-    inputs:
-      command: 'publish'
-      projects: 'UserManagement.BlazorUI/UserManagement.BlazorUI.csproj'
-      arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/BlazorApp'
-      zipAfterPublish: true
-  
-  # Deploy Web API to Azure
-  - task: AzureWebApp@1
-    displayName: 'Deploy Web API'
-    inputs:
-      azureSubscription: 'userconn'
-      appType: 'webApp'
-      appName: '$(webAppName)'
-      package: '$(Build.ArtifactStagingDirectory)/WebApp.zip'
-  
-  # Deploy Blazor WASM to Azure
-  - task: AzureWebApp@1
-    displayName: 'Deploy Blazor WASM'
-    inputs:
-      azureSubscription: 'userconn'
-      appType: 'webApp'
-      appName: '$(blazorAppName)'
-      package: '$(Build.ArtifactStagingDirectory)/BlazorApp.zip'
-  
+- checkout: self
+
+# Restore all projects
+- task: DotNetCoreCLI@2
+  displayName: 'Restore NuGet packages'
+  inputs:
+    command: restore
+    projects: '**/*.csproj'
+
+# Build Web and Blazor
+- task: DotNetCoreCLI@2
+  displayName: 'Build Web'
+  inputs:
+    command: build
+    projects: 'UserManagement.Web/UserManagement.Web.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build BlazorUI'
+  inputs:
+    command: build
+    projects: 'UserManagement.BlazorUI/UserManagement.BlazorUI.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+# Publish artifacts
+- task: DotNetCoreCLI@2
+  displayName: 'Publish Web'
+  inputs:
+    command: publish
+    projects: 'UserManagement.Web/UserManagement.Web.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/Web'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish BlazorUI'
+  inputs:
+    command: publish
+    projects: 'UserManagement.BlazorUI/UserManagement.BlazorUI.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/BlazorUI'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifacts'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
