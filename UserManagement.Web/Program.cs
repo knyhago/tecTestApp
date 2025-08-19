@@ -39,13 +39,13 @@ app.UseMarkdown();
 
 app.Services.MigrateDb();
 
-//app.UseHsts();
-//app.UseHttpsRedirection();
+app.UseHsts();
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 
 app.UseRouting();
-//app.UseAuthorization();
+app.UseAuthorization();
 
 app.MapDefaultControllerRoute();
 

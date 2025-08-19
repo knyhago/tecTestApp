@@ -90,7 +90,7 @@ else
         try
         {
             // Fetch users from API
-            users = await HttpClient.GetFromJsonAsync<UserDto[]>("https://localhost:7084/api/users");
+            users = await HttpClient.GetFromJsonAsync<UserDto[]>("/api/users");
             FilteredUsers = users;
         }
         catch (Exception ex)
@@ -120,7 +120,7 @@ else
         try
         {
             var response = await HttpClient
-            .DeleteAsync($"https://localhost:7084/api/users/{id}");
+            .DeleteAsync($"/api/users/{id}");
             
             if (response.IsSuccessStatusCode)
             {

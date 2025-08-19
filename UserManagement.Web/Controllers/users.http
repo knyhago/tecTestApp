@@ -1,21 +1,21 @@
 # ---------------------------
 # Get all users
 # ---------------------------
-GET https://localhost:7084/api/users
+GET https://usermanagement-gacpf2b0hhfqhbfe.ukwest-01.azurewebsites.net/api/users
 Accept: application/json
 ###
-GET https://localhost:7084/api/logs
+GET https://usermanagement-gacpf2b0hhfqhbfe.ukwest-01.azurewebsites.net/api/logs
 Accept: application/json
 
 ###
-GET https://localhost:7084/api/logs/10
+GET https://usermanagement-gacpf2b0hhfqhbfe.ukwest-01.azurewebsites.net/api/logs/10
 Accept: application/json
 
 ###
 
 
 ### Add a new log
-POST https://localhost:7084/api/logs/addLog
+POST https://usermanagement-gacpf2b0hhfqhbfe.ukwest-01.azurewebsites.net/api/logs/addLog
 Content-Type: application/json
 Accept: application/json
 
@@ -29,7 +29,7 @@ Accept: application/json
 # ---------------------------
 # Get a single user by ID
 # ---------------------------
-GET https://localhost:7084/api/users/1
+GET https://usermanagement-gacpf2b0hhfqhbfe.ukwest-01.azurewebsites.net/api/users/1
 Accept: application/json
 
 ###
