@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - UserManagement
+name: Build, Test, and Deploy ASP.Net Core app to Azure Web App - UserManagement
 
 on:
   push:
@@ -26,6 +26,17 @@ jobs:
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
+      # -------- Run Tests --------
+      - name: Run Data Tests
+        run: dotnet test UserManagement.Data.Tests/UserManagement.Data.Tests.csproj --configuration Release --no-build
+
+      - name: Run Services Tests
+        run: dotnet test UserManagement.Services.Tests/UserManagement.Services.Tests.csproj --configuration Release --no-build
+
+      - name: Run Web Tests
+        run: dotnet test UserManagement.Web.Tests/UserManagement.Web.Tests.csproj --configuration Release --no-build
+
+      # -------- Publish App --------
       - name: dotnet publish
         run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
@@ -62,4 +73,3 @@ jobs:
           app-name: 'UserManagement'
           slot-name: 'Production'
           package: .
-          
