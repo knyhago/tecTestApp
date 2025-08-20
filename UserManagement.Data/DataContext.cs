@@ -16,7 +16,7 @@ public class DataContext : DbContext, IDataContext
         
      }
 
-     public DbSet<User>? Users { get; set; }
+     public DbSet<User> Users { get; set; }
 
     public DbSet<Log> UserLogs { get; set; }
 
