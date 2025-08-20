@@ -89,7 +89,11 @@ public class UserService : IUserService
 
         List<string> changes = new();
 
-        if(olduser.Surname!= user.Surname)
+        if(string.Equals(olduser.Forename, user.Forename))
+        {
+            changes.Add($"{olduser.Forename} Changed to {user.Forename}");
+        }
+        if(string.Equals(olduser.Surname, user.Surname))
         {
             changes.Add($"{olduser.Surname} Changed to {user.Surname}");
         }
