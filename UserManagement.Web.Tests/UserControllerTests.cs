@@ -1,9 +1,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using UserManagement.Contracts.Models.Users;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
-using UserManagement.Web.Models.Users;
+
 using UserManagement.WebMS.Controllers;
 
 namespace UserManagement.Data.Tests

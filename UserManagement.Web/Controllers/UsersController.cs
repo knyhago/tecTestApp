@@ -1,10 +1,7 @@
-﻿using System.Linq;
-using Microsoft.Extensions.Logging;
-using UserManagement.Models;
+﻿using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Contracts.DTOS;
 using UserManagement.Contracts.Models.Users;
-using System.Threading.Tasks;
 
 namespace UserManagement.WebMS.Controllers;
 
