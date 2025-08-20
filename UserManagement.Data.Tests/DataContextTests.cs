@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using UserManagement.Models;
 
 namespace UserManagement.Data.Tests;
@@ -46,5 +48,12 @@ public class DataContextTests
         result.Should().NotContain(s => s.Email == entity.Email);
     }
 
-    private DataContext CreateContext() => new DataContext();
+   private DataContext CreateContext()
+{
+    var options = new DbContextOptionsBuilder<DataContext>()
+        .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // unique DB for each test
+        .Options;
+
+    return new DataContext(options);
+}
 }
