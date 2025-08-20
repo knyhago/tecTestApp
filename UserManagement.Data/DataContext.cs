@@ -49,10 +49,24 @@ public class DataContext : DbContext, IDataContext
         }
 
    
+
+    
     public async Task<List<TEntity>> GetAll<TEntity>() where TEntity : class
     {
-    return await Set<TEntity>().ToListAsync(); // materializes IQueryable
+    return await Set<TEntity>()
+                .AsNoTracking()
+                .ToListAsync(); 
     }
+
+    public async Task<TEntity?> GetById<TEntity>(long id) where TEntity : class
+    {
+    return await Set<TEntity>()
+                .AsNoTracking()
+                 .FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id); //"Get the first entity from the table where its Id property equals the id parameter,
+                                                                            // or return null if none exists. Do it asynchronously, and don’t track the entity."
+
+    }
+
 
 
     public async Task Create<TEntity>(TEntity entity) where TEntity : class
@@ -63,8 +77,17 @@ public class DataContext : DbContext, IDataContext
 
     public new async Task Update<TEntity>(TEntity entity) where TEntity : class
     {
-        base.Update(entity);
-        await SaveChangesAsync();
+        try{
+            base.Update(entity);
+            await SaveChangesAsync();
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            throw;
+
+        }
+       
     }
 
     public async Task Delete<TEntity>(TEntity entity) where TEntity : class

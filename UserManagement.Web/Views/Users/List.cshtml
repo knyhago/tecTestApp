@@ -1,4 +1,5 @@
-﻿@model UserManagement.Contracts.Models.Users.UserListViewModel
+﻿@* @model UserManagement.Contracts.Models.Users.UserListViewModel *@
+@model List<UserManagement.Contracts.DTOS.UserDto>
 
 <h2>User List</h2>
 
@@ -16,7 +17,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.Items)
+            @foreach (var item in Model)
             {
                 <tr>
                     <td>

@@ -9,8 +9,11 @@ public interface IDataContext
     /// Get a list of items
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    /// <returns></returns>
+    /// <returns></returns> //added this so that a property can set to no tracking
+
     Task<List<TEntity>> GetAll<TEntity>() where TEntity : class;
+
+    Task<TEntity?> GetById<TEntity>(long id) where TEntity : class;
 
     /// <summary>
     /// Create a new item

@@ -8,6 +8,9 @@
 </div>
 
 <form asp-action="SubmitForm">
+
+     <input type="hidden" asp-for="Id" value="@(Model?.Id == 0 ? 0 : Model!.Id)" />
+
     
     <div>
         <label class="mt-4" for="Forename">Forename</label>

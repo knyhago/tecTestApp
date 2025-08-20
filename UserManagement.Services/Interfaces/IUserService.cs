@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using UserManagement.Contracts.DTOS;
-using UserManagement.Contracts.Models.Users;
 using UserManagement.Models;
 
 namespace UserManagement.Services.Domain.Interfaces;
@@ -26,7 +25,10 @@ public interface IUserService
 
     User ToEntity(UserDto userDto);
 
-    UserDto ToDto (UserListItemViewModel user);
+    // UserDto ToDto (UserListItemViewModel user);
+    List<UserDto> ToDtoList(List<User> users);
+
+    UserDto ToDto (User user);
 
 
 }

@@ -1,7 +1,8 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using UserManagement.Contracts.Models.Users;
+using UserManagement.Contracts.DTOS;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 
@@ -18,34 +19,62 @@ namespace UserManagement.Data.Tests
         private UsersController CreateController() =>
             new(_userService.Object, _mockLogger.Object, _mockLogService.Object);
 
-        private User[] SetupUsers()
+        private List<User> SetupUsers()
         {
-            var users = new[]
+            return new List<User>
             {
-                new User { Forename = "Johnny", Surname = "User", Email = "juser@example.com", IsActive = true }
+                new User
+                {
+                    Id = 1,
+                    Forename = "Johnny",
+                    Surname = "User",
+                    Email = "juser@example.com",
+                    IsActive = true,
+                    DateOfBirth = new System.DateOnly(1990, 1, 1)
+                }
             };
-
-            // IUserService.GetAllAsync() returns Task<IEnumerable<User>>
-            _userService.Setup(s => s.GetAllAsync())
-                    .ReturnsAsync(users.ToList());
-
-            return users;
         }
 
-        [Fact]
+
+       [Fact]
         public async Task List_WhenServiceReturnsUsers_ModelMustContainUsers()
         {
             // Arrange
             var controller = CreateController();
-            var users = SetupUsers();
+            var users = SetupUsers(); // List<User>
+
+            // Setup mock to return users
+            _userService.Setup(s => s.GetAllAsync())
+                        .ReturnsAsync(users);
+
+            // Setup mock ToDtoList if needed
+            var expectedDtos = users.Select(u => new UserDto(
+                u.Id,
+                u.Forename,
+                u.Surname,
+                u.DateOfBirth,
+                u.Email,
+                u.IsActive
+            )).ToList();
+
+            _userService.Setup(s => s.ToDtoList(It.IsAny<List<User>>()))
+                        .Returns((List<User> u) =>
+                            u.Select(x => new UserDto(
+                                x.Id,
+                                x.Forename,
+                                x.Surname,
+                                x.DateOfBirth,
+                                x.Email,
+                                x.IsActive
+                            )).ToList());
 
             // Act
-            var result = await controller.List(); // await because it's async
+            var result = await controller.List();
 
             // Assert
             result.Model
-                .Should().BeOfType<UserListViewModel>()
-                .Which.Items.Should().BeEquivalentTo(users);
+                .Should().BeOfType<List<UserDto>>()
+                .Which.Should().BeEquivalentTo(expectedDtos);
         }
     }
 }

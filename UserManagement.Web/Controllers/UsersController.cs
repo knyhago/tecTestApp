@@ -1,8 +1,6 @@
 ﻿using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Contracts.DTOS;
-using UserManagement.Contracts.Models.Users;
-
 namespace UserManagement.WebMS.Controllers;
 
 //[ApiController]
@@ -11,7 +9,6 @@ public class UsersController : Controller
 {
     private readonly IUserService _userService;
     private readonly ILogService _logService;
-
      private readonly ILogger<User> _logger;
     public UsersController(IUserService userService,ILogger<User> logger,ILogService logService)
     {
@@ -22,55 +19,28 @@ public class UsersController : Controller
     } 
 
     [HttpGet]
-    public async Task<ViewResult> List()
+    public async Task<ViewResult> List()//changed this function to display dto instead of  IEnumerable<UserListItemViewModel>
     {
-    
-        var users = await _userService.GetAllAsync();
-
-        var items = users.Select(p => new UserListItemViewModel
-        {
-            Id = p.Id,
-            Forename = p.Forename,
-            Surname = p.Surname,
-            Email = p.Email,
-            IsActive = p.IsActive,
-            DateOfBirth = p.DateOfBirth
-        }).ToList(); // Move ToList here
-
-        var model = new UserListViewModel
-        {
-            Items = items
-        };
+        List<User> users = await _userService.GetAllAsync();
+        var items = _userService.ToDtoList(users);// Move manual list mapping to ToDtolist
 
         _logger.LogInformation("Displayed whole List");
 
-        return View(model);
+        return View(items);
     }
-    
+
+   
+
     [HttpGet("FilterList")]
      public async Task<ViewResult> FilterList(bool isActive)
     {
-        var users = await _userService.GetAllAsync();
+        List<User> users = await _userService.GetAllAsync();
 
-        var items = users.Where(user=>user.IsActive==isActive)
-        .Select(p => new UserListItemViewModel
-        {
-            Id = p.Id,
-            Forename = p.Forename,
-            Surname = p.Surname,
-            Email = p.Email,
-            IsActive = p.IsActive,
-            DateOfBirth = p.DateOfBirth
-        });
-
-        var model = new UserListViewModel
-        {
-            Items = items.ToList()
-        };
+        var items = _userService.ToDtoList(users);
 
         _logger.LogInformation("Displayed {isActive} List",isActive);
 
-        return View("List",model);
+        return View("List",items);
     }
     //Form to Add a New User
     [HttpGet("AddForm")]
@@ -79,19 +49,14 @@ public class UsersController : Controller
 
         if(id is not null)
         {
-            var items = await _userService.GetAllAsync();
-            var users =items
-            .Select(p => new UserListItemViewModel
-        {
-            Id = p.Id,
-            Forename = p.Forename,
-            Surname = p.Surname,
-            Email = p.Email,
-            IsActive = p.IsActive,
-            DateOfBirth = p.DateOfBirth
-        });;
-            UserListItemViewModel user = users.First(usr => usr.Id == id);
-            var data = _userService.ToDto(user);
+            List<User> items = await _userService.GetAllAsync();
+
+            User? user = items.FirstOrDefault(usr=>usr.Id==id);
+
+            if(user is null)
+            throw new Exception("User Page can be found to edit");
+
+            UserDto data = _userService.ToDto(user);
             return View(data);
 
         }
@@ -103,7 +68,7 @@ public class UsersController : Controller
     [HttpPost("SubmitForm")]
     public async Task<IActionResult> SubmitForm(UserDto userDTO)
     {
-        var newUser = _userService.ToEntity(userDTO);
+        User newUser = _userService.ToEntity(userDTO);
 
         if (newUser.Id == 0)
         {
@@ -121,9 +86,9 @@ public class UsersController : Controller
      [HttpGet("delete/{id}")]
     public async Task<IActionResult> DeleteUser(int id)
     {
-        var users =await _userService.GetAllAsync();
+        List<User> users =await _userService.GetAllAsync();
 
-        var user = users.First(usr=>usr.Id==id);
+        User user = users.First(usr=>usr.Id==id);
 
         await _userService.DeleteUserAsync(user);
 
@@ -131,24 +96,4 @@ public class UsersController : Controller
 
     }
 
-    // private static User ToEntity(UserDto userDTO) =>
-    //         new()
-    //         {
-    //             Id = userDTO.Id,
-    //             Forename = userDTO.Forename,
-    //             Surname = userDTO.Surname,
-    //             DateOfBirth = userDTO.DateOfBirth,
-    //             Email = userDTO.Email,
-    //             IsActive = true
-    //         };
-
-    //  private static UserDto ToDto(UserListItemViewModel user) =>
-    //             new UserDto(
-    //                 user.Id,
-    //                 user.Forename!,
-    //                 user.Surname!,
-    //                 user.DateOfBirth,
-    //                 user.Email!,
-    //                 user.IsActive
-    //             );
 }
