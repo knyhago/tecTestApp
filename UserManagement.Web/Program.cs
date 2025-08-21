@@ -26,11 +26,7 @@ Log.Logger = new LoggerConfiguration()
 
 var app = builder.Build();
 
-app.UseCors(policy => policy
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader()
-);
+
 
 app.UseMarkdown();
 
@@ -42,6 +38,11 @@ app.UseStaticFiles();
 
 
 app.UseRouting();
+app.UseCors(policy => policy
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+);
 app.UseAuthorization();
 
 app.MapDefaultControllerRoute();
