@@ -10,7 +10,9 @@ public class UsersController : Controller
     private readonly IUserService _userService;
     private readonly ILogService _logService;
      private readonly ILogger<User> _logger;
-    public UsersController(IUserService userService,ILogger<User> logger,ILogService logService)
+    public UsersController(IUserService userService,
+                            ILogger<User> logger,
+                            ILogService logService)
     {
         _userService = userService;
         _logger=logger;
@@ -22,19 +24,17 @@ public class UsersController : Controller
     public async Task<ViewResult> List()//changed this function to display dto instead of  IEnumerable<UserListItemViewModel>
     {
         List<User> users = await _userService.GetAllAsync();
-        var items = _userService.ToDtoList(users);// Move manual list mapping to ToDtolist
+        List<UserDto> items = _userService.ToDtoList(users);// Move manual list mapping to ToDtolist
 
         _logger.LogInformation("Displayed whole List");
 
         return View(items);
     }
 
-   
-
     [HttpGet("FilterList")]
      public async Task<ViewResult> FilterList(bool isActive)
     {
-        List<User> users = await _userService.GetAllAsync();
+        List<User> users = await _userService.FilterByActiveAsync(isActive);
 
         var items = _userService.ToDtoList(users);
 
@@ -42,12 +42,13 @@ public class UsersController : Controller
 
         return View("List",items);
     }
+
     //Form to Add a New User
     [HttpGet("AddForm")]
-    public async Task<ViewResult> AddEditUserForm(int? id)
+    public async Task<ViewResult> AddEditUserForm(long? id)
     {
 
-        if(id is not null)
+        if(id is not null || id == 0)
         {
             List<User> items = await _userService.GetAllAsync();
 
@@ -95,5 +96,7 @@ public class UsersController : Controller
         return RedirectToAction("List");
 
     }
+
+    
 
 }
