@@ -17,19 +17,15 @@
 <EditForm Model="@user" FormName="userForm" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
-
     <input type="hidden" @bind="user!.Id" />
-
     <div class="mb-3">
         <label for="Forename">Forename</label>
         <InputText id="Forename" class="form-control" @bind-Value="user.Forename" />
     </div>
-
     <div class="mb-3">
         <label for="Surname">Surname</label>
         <InputText id="Surname" class="form-control" @bind-Value="user.Surname" />
     </div>
-
     <div class="mb-3">
         <label for="DateOfBirth">Date of Birth</label>
         <InputDate id="DateOfBirth" class="form-control" @bind-Value="user.DateOfBirth" />
@@ -53,6 +49,7 @@
     public long id { get; set; }
 
     public User user { get; set; } = new();
+    
 
     protected override async Task OnParametersSetAsync()
     {
@@ -73,6 +70,7 @@
 
     private async Task HandleValidSubmit()
     {
+        
         try
         {
             HttpResponseMessage response;
@@ -91,9 +89,10 @@
                 Console.WriteLine(id > 0 ? "User updated successfully" : "User added successfully");
                 NavigationManager.NavigateTo("userList");
             }
+            
             else
             {
-                Console.WriteLine($"Failed to save user: {response.StatusCode}");
+               Console.Write( $"Failed to save user: {response.StatusCode}");
             }
         }
         catch (Exception ex)
