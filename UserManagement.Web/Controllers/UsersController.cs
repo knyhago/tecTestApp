@@ -25,6 +25,7 @@ public class UsersController : Controller
     {
         List<User> users = await _userService.GetAllAsync();
         List<UserDto> items = _userService.ToDtoList(users);// Move manual list mapping to ToDtolist
+        
 
         _logger.LogInformation("Displayed whole List");
 

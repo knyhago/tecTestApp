@@ -2,42 +2,47 @@
 
 @{
     ViewData["Title"] = "Application Logs";
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int currentPage = ViewBag.CurrentPage ?? 1;
+
 }
 
 <h2 class="mb-3">Application Logs</h2>
 
-<div>
 <div class="d-flex justify-content-start gap-2 mb-3">
- <a asp-action="List" asp-controller="Users" class="btn btn-sm btn-secondary">Back</a>
+    <a asp-action="List" asp-controller="Users" class="btn btn-sm btn-secondary">Back</a>
 </div>
 
 <table class="table table-striped table-bordered">
     <thead>
         <tr>
-            @* <th>Id</th>
-            <th>User Id</th> *@
             <th>Action</th>
             <th>Details</th>
-            @* <th>Performed By</th>
-            <th>Timestamp</th> *@
             <th></th>
         </tr>
     </thead>
     <tbody>
-    @foreach (var log in Model.OrderByDescending(l => l.Timestamp))
+    @foreach (var log in Model)
     {
         <tr>
-            @* <td>@log.Id</td>
-            <td>@log.UserId</td> *@
             <td>@log.Action</td>
             <td>@log.Details</td>
-            @* <td>@log.PerformedBy</td>
-            <td>@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td> *@
             <td>
-                <a asp-controller="Log" asp-action="LogView"asp-route-id="@log.Id" class="btn btn-sm btn-info">View</a>
+                <a asp-controller="Log" asp-action="LogView" asp-route-id="@log.Id" class="btn btn-sm btn-info">View</a>
             </td>
         </tr>
     }
     </tbody>
 </table>
- </div>
+
+<!-- Pagination Links -->
+<nav>
+    <ul class="pagination">
+        @for (int i = 1; i <= totalPages; i++)
+        {
+            <li class="page-item @(i == currentPage ? "active" : "")">
+                <a class="page-link" href="@Url.Action("ViewAllLogs", new { page = i })">@i</a>
+            </li>
+        }
+    </ul>
+</nav>

@@ -10,6 +10,10 @@
     <h1 class="display-4">@((id > 0) ? "Edit User" : "Add User")</h1>
 </div>
 
+<div class="d-flex justify-content-start gap-2 mb-3">
+   <a type="button" class="btn btn-secondary"href="/userList">Back</a>
+</div>
+
 <EditForm Model="@user" FormName="userForm" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -56,7 +60,7 @@
         {
             try
             {
-                user = await HttpClient.GetFromJsonAsync<User>($"https://localhost:7084/api/users/{id}")
+                user = await HttpClient.GetFromJsonAsync<User>($"/api/users/{id}")
                        ?? new User();
             }
             catch (Exception ex)
@@ -75,11 +79,11 @@
 
             if (id > 0) // edit
             {
-                response = await HttpClient.PutAsJsonAsync($"https://localhost:7084/api/users/{id}", user);
+                response = await HttpClient.PutAsJsonAsync($"/api/users/{id}", user);
             }
             else // add
             {
-                response = await HttpClient.PostAsJsonAsync("https://localhost:7084/api/users/add", user);
+                response = await HttpClient.PostAsJsonAsync("/api/users/add", user);
             }
 
             if (response.IsSuccessStatusCode)

@@ -5,6 +5,16 @@
 
 <h3>Users List</h3>
 
+<div class="d-flex justify-content-start gap-2 mb-3">
+     <a href="@("/addUser")" class="btn btn-primary float-end">
+        Add User
+    </a>
+
+    <a href="@("/allLogs")"  class="btn btn-secondary float-end">
+        All Logs 
+    </a>
+</div>
+
 @if (FilteredUsers is null)
 {
     <p><em>Loading...</em></p>
@@ -63,14 +73,8 @@ else
             </tbody>
         </table>
 
-        <div>
-             <a href="@("/addUser")" class="btn btn-primary float-end">
-        Add User
-    </a>
-
-    <a href="@("/allLogs")"  class="btn btn-secondary float-end">
-        All Logs 
-    </a>
+    <div>
+           
         </div>
     </div>
 

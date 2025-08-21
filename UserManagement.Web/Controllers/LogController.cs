@@ -22,14 +22,27 @@ namespace UserManagement.Web.Controllers
        
     }
 
-     [HttpGet("AllLogs")]//This gets all the logs irrespective of the user
-    public async Task<ViewResult> ViewAllLogs(int id)
+    [HttpGet("AllLogs")]
+    public async Task<ViewResult> ViewAllLogs(int page = 1, int pageSize = 10)
     {
-        var logs=await _logService.GetLogsAsync();
+        var logs = await _logService.GetLogsAsync();
 
-        return View("ViewLogs",logs);
-       
+        // Order by timestamp descending
+        var orderedLogs = logs.OrderByDescending(l => l.Timestamp);
+
+        // Pagination
+        var pagedLogs = orderedLogs
+                        .Skip((page - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+        // Pass total count for page links
+        ViewBag.TotalPages = (int)Math.Ceiling((double)logs.Count() / pageSize);
+        ViewBag.CurrentPage = page;
+
+        return View("ViewLogs", pagedLogs);
     }
+
 
     [HttpGet("Logs")] //gets logs for the specific user
     public async Task <ViewResult> ViewLogs(int id)
@@ -40,7 +53,7 @@ namespace UserManagement.Web.Controllers
         return View(log);
        
     }
-    }
+}
 
 
 }

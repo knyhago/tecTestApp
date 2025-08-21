@@ -8,9 +8,9 @@
         Add User
     </a>
 
-    <a asp-controller="Log" asp-action="ViewAllLogs" class="btn btn-secondary">
-        All Logs
-    </a>
+    <a asp-controller="Log" asp-action="ViewAllLogs" asp-route-page="1" class="btn btn-secondary">
+    All Logs
+</a>
 </div>
 
 <div class="table-responsive">
@@ -74,12 +74,7 @@
         <a asp-controller="Users" asp-action="FilterList" asp-route-isActive="false" 
         class="btn btn-default">Non Active</a>
 
-        
     </div>
-
- 
-
-
     
 </div>
 
