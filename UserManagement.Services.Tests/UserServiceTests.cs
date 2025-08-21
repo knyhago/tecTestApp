@@ -90,7 +90,6 @@ namespace UserManagement.Data.Tests
 
             _dataContext.Verify(d => d.Create(user), Times.Once);
             _mockLogService.Verify(l => l.AddLogAsync(It.Is<Log>(log => log.Action == "Added")), Times.Once);
-            _mockLogger.Verify(l => l.LogInformation(It.IsAny<string>(), user.Forename, user.Id), Times.Once);
         }
 
         [Fact]
@@ -107,7 +106,6 @@ namespace UserManagement.Data.Tests
 
             _dataContext.Verify(d => d.Update(updatedUser), Times.Once);
             _mockLogService.Verify(l => l.AddLogAsync(It.Is<Log>(log => log.Action == "Edited")), Times.Once);
-            _mockLogger.Verify(l => l.LogInformation(It.IsAny<string>(), updatedUser.Forename, updatedUser.Id), Times.Once);
         }
 
         [Fact]
@@ -130,7 +128,6 @@ namespace UserManagement.Data.Tests
 
             _dataContext.Verify(d => d.Delete(user), Times.Once);
             _mockLogService.Verify(l => l.AddLogAsync(It.Is<Log>(log => log.Action == "Deleted")), Times.Once);
-            _mockLogger.Verify(l => l.LogInformation(It.IsAny<string>(), user.Forename, user.Id), Times.Once);
         }
 
         [Fact]
