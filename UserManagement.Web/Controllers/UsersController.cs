@@ -55,7 +55,7 @@ public class UsersController : Controller
         User? user = items.FirstOrDefault(usr => usr.Id == id.Value);
 
         if (user is null)
-            throw new Exception("User not found for editing");
+            throw new Exception("User Page can be found to edit");
 
         UserDto data = _userService.ToDto(user);
         return View(data);
