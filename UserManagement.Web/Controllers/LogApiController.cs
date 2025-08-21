@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Threading.Tasks;
 using UserManagement.Data.Entities;
 using UserManagement.Services.Domain.Interfaces;
 

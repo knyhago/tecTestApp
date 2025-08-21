@@ -39,7 +39,7 @@ public class UserService : IUserService
        
     }
 
-    public async Task<User> GetById(int id)
+    public async Task<User> GetById(long id)
     {
        var user = await _dataAccess.GetById<User>(id);
 
@@ -51,7 +51,7 @@ public class UserService : IUserService
 
     public Task<List<User>> GetAllAsync() => _dataAccess.GetAll<User>();
 
-    public async Task<User> GetUserByIdAsync(long id)
+    public async Task<User?> GetUserByIdAsync(long id)
     {
         var users =await _dataAccess.GetAll<User>();
 
@@ -138,15 +138,6 @@ public class UserService : IUserService
 
     }
 
-    //  public  UserDto ToDto(UserListItemViewModel user) =>
-    //             new UserDto(
-    //                 user.Id,
-    //                 user.Forename!,
-    //                 user.Surname!,
-    //                 user.DateOfBirth,
-    //                 user.Email!,
-    //                 user.IsActive
-    //             );
     public  UserDto ToDto(User user) =>
                 new UserDto(
                     user.Id,

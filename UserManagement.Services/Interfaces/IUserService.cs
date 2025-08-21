@@ -15,7 +15,7 @@ public interface IUserService
     Task<List<User>> FilterByActiveAsync(bool isActive);
     Task<List<User>> GetAllAsync();
 
-    Task<User> GetUserByIdAsync(long id);
+    Task<User?> GetUserByIdAsync(long id);
 
     Task AddAsync(User user);
 

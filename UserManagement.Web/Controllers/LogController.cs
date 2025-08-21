@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Threading.Tasks;
 using UserManagement.Services.Domain.Interfaces;
 
 namespace UserManagement.Web.Controllers

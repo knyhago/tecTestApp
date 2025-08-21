@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Threading.Tasks;
 using UserManagement.Contracts.DTOS;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;

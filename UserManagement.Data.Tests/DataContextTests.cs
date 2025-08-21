@@ -7,49 +7,122 @@ namespace UserManagement.Data.Tests
 {
     public class DataContextTests
     {
-        [Fact]
-        public async Task GetAll_WhenNewEntityAdded_MustIncludeNewEntity()
+       [Fact]
+        public async Task GetAll_ShouldReturnAllEntities()
         {
             // Arrange
             var context = CreateContext();
-
-            var entity = new User
+            var newUser = new User
             {
-                Forename = "Brand New",
-                Surname = "User",
-                Email = "brandnewuser@example.com"
+                Forename = "Alice",
+                Surname = "Wonder",
+                Email = "alice@example.com"
             };
-
-            await context.Create(entity);
+            await context.Create(newUser);
 
             // Act
-            var result = await context.GetAll<User>();
+            var users = await context.GetAll<User>();
 
             // Assert
-            result.Should().ContainSingle(s => s.Email == entity.Email)
-                  .Which.Should().BeEquivalentTo(entity, options => options.Excluding(u => u.Id));
+            users.Should().ContainSingle(u => u.Email == "alice@example.com");
         }
 
         [Fact]
-        public async Task GetAll_WhenDeleted_MustNotIncludeDeletedEntity()
+        public async Task GetById_WhenEntityExists_ShouldReturnEntity()
+        {
+            // Arrange
+            var context = CreateContext();
+            var newUser = new User
+            {
+                Forename = "Bob",
+                Surname = "Builder",
+                Email = "bob@example.com"
+            };
+            await context.Create(newUser);
+
+            // Act
+            var user = await context.GetById<User>(newUser.Id);
+
+            // Assert
+            user.Should().NotBeNull();
+            user!.Email.Should().Be("bob@example.com");
+        }
+
+        [Fact]
+        public async Task GetById_WhenEntityDoesNotExist_ShouldReturnNull()
         {
             // Arrange
             var context = CreateContext();
 
-            var entity = new User
-            {
-                Forename = "Test",
-                Surname = "User",
-                Email = "testuser@example.com"
-            };
-            await context.Create(entity);
-
             // Act
-            await context.Delete(entity);
-            var result = await context.GetAll<User>();
+            var user = await context.GetById<User>(999);
 
             // Assert
-            result.Should().NotContain(s => s.Email == entity.Email);
+            user.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task Create_ShouldAddEntity()
+        {
+            // Arrange
+            var context = CreateContext();
+            var newUser = new User
+            {
+                Forename = "Charlie",
+                Surname = "Chaplin",
+                Email = "charlie@example.com"
+            };
+
+            // Act
+            await context.Create(newUser);
+            var users = await context.GetAll<User>();
+
+            // Assert
+            users.Should().ContainSingle(u => u.Email == "charlie@example.com");
+        }
+
+        [Fact]
+        public async Task Update_ShouldModifyEntity()
+        {
+            // Arrange
+            var context = CreateContext();
+            var newUser = new User
+            {
+                Forename = "David",
+                Surname = "Goliath",
+                Email = "david@example.com"
+            };
+            await context.Create(newUser);
+
+            // Act
+            newUser.Surname = "Updated";
+            await context.Update(newUser);
+
+            var updatedUser = await context.GetById<User>(newUser.Id);
+
+            // Assert
+            updatedUser!.Surname.Should().Be("Updated");
+        }
+
+        [Fact]
+        public async Task Delete_ShouldRemoveEntity()
+        {
+            // Arrange
+            var context = CreateContext();
+            var newUser = new User
+            {
+                Forename = "Eve",
+                Surname = "Online",
+                Email = "eve@example.com"
+            };
+            await context.Create(newUser);
+
+            // Act
+            await context.Delete(newUser);
+            var users = await context.GetAll<User>();
+
+            // Assert
+            users.Should().NotContain(u => u.Email == "eve@example.com");
         }
 
         private static DataContext CreateContext()
@@ -60,7 +133,7 @@ namespace UserManagement.Data.Tests
 
             var context = new DataContext(options);
 
-            // Optional: seed initial data
+            // Seed initial data (optional)
             context.Users.AddRange(new[]
             {
                 new User { Id = 1, Forename = "Peter", Surname = "Loew", Email = "ploew@example.com", IsActive = true, DateOfBirth = new DateOnly(1995,6,12) },
