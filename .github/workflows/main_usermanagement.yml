@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build, Test, and Deploy ASP.Net Core app to Azure Web App - UserManagement
+name: Build, Test, and Deploy ASP.Net Core apps to Azure Web Apps (MVC + Blazor)
 
 on:
   push:
@@ -36,17 +36,27 @@ jobs:
       - name: Run Web Tests
         run: dotnet test UserManagement.Web.Tests/UserManagement.Web.Tests.csproj --configuration Release --no-build
 
-      # -------- Publish App --------
-      - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+      # -------- Publish MVC App --------
+      - name: Publish MVC
+        run: dotnet publish UserManagement.Web/UserManagement.Web.csproj -c Release -o ./publish/web  # <-- ADDED
 
-      - name: Upload artifact for deployment job
+      - name: Upload MVC artifact
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          name: mvc-app  # <-- ADDED
+          path: ./publish/web  # <-- ADDED
 
-  deploy:
+      # -------- Publish Blazor App --------
+      - name: Publish Blazor
+        run: dotnet publish UserManagement.BlazorUI/UserManagement.BlazorUI.csproj -c Release -o ./publish/blazor  # <-- ADDED
+
+      - name: Upload Blazor artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: blazor-app  # <-- ADDED
+          path: ./publish/blazor  # <-- ADDED
+
+  deploy-mvc:
     runs-on: windows-latest
     needs: build
     permissions:
@@ -54,11 +64,11 @@ jobs:
       contents: read #This is required for actions/checkout
 
     steps:
-      - name: Download artifact from build job
+      - name: Download MVC artifact
         uses: actions/download-artifact@v4
         with:
-          name: .net-app
-      
+          name: mvc-app  # <-- ADDED
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -66,10 +76,36 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_692A5F33989B45BEABB5AA409DDD58C2 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_0A149D2EC40B48CAB1FB4719EB459F10 }}
 
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
+      - name: Deploy MVC to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'UserManagement'
+          app-name: 'UserManagement'  # <-- Your existing MVC App Service
+          slot-name: 'Production'
+          package: .
+
+  deploy-blazor:  # <-- ADDED
+    runs-on: windows-latest  # <-- ADDED
+    needs: build  # <-- ADDED
+    permissions:  # <-- ADDED
+      id-token: write
+      contents: read
+
+    steps:  # <-- ADDED
+      - name: Download Blazor artifact  # <-- ADDED
+        uses: actions/download-artifact@v4
+        with:
+          name: blazor-app  # <-- ADDED
+
+      - name: Login to Azure (Blazor)  # <-- ADDED
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_12FC49DC697D4CE68C7BB6F0CE3C5754 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_692A5F33989B45BEABB5AA409DDD58C2 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_0A149D2EC40B48CAB1FB4719EB459F10 }}
+
+      - name: Deploy Blazor to Azure Web App  # <-- ADDED
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'UserManagement-Blazor'  # <-- NEW App Service for Blazor
           slot-name: 'Production'
           package: .

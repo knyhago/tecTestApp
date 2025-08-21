@@ -3,6 +3,16 @@
 
 <h2>User List</h2>
 
+<div class="d-flex justify-content-start gap-2 mb-3">
+    <a asp-controller="Users" asp-action="AddEditUserForm" class="btn btn-primary">
+        Add User
+    </a>
+
+    <a asp-controller="Log" asp-action="ViewAllLogs" class="btn btn-secondary">
+        All Logs
+    </a>
+</div>
+
 <div class="table-responsive">
     <table class="table table-striped">
         <thead>
@@ -67,12 +77,9 @@
         
     </div>
 
-    <a asp-controller="Users" asp-action="AddEditUserForm" class="btn btn-primary float-end">
-        Add User
-    </a>
+ 
 
-    <a asp-controller="Log" asp-action="ViewAllLogs" class="btn btn-secondary float-end">
-        All Logs 
-    </a>
+
+    
 </div>
 

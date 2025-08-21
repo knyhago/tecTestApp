@@ -48,20 +48,21 @@ public class UsersController : Controller
     public async Task<ViewResult> AddEditUserForm(long? id)
     {
 
-        if(id is not null || id == 0)
-        {
-            List<User> items = await _userService.GetAllAsync();
+        if (id.HasValue && id.Value > 0)
+    {
+        // Edit scenario
+        List<User> items = await _userService.GetAllAsync();
+        User? user = items.FirstOrDefault(usr => usr.Id == id.Value);
 
-            User? user = items.FirstOrDefault(usr=>usr.Id==id);
+        if (user is null)
+            throw new Exception("User not found for editing");
 
-            if(user is null)
-            throw new Exception("User Page can be found to edit");
+        UserDto data = _userService.ToDto(user);
+        return View(data);
+    }
 
-            UserDto data = _userService.ToDto(user);
-            return View(data);
-
-        }
-        return View();
+    // Add scenario - pass empty model
+    return View(new UserDto());
     }
 
 
