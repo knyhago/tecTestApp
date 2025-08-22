@@ -9,6 +9,8 @@ namespace UserManagement.Data;
         {
             using var scope = serviceProvider.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
-            dbContext.Database.Migrate();
+
+              dbContext.Database.Migrate();
+            
         }
     }

@@ -1,22 +1,36 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using UserManagement.Data;
-
-namespace Microsoft.Extensions.DependencyInjection;
+using System;
 
 public static class ServiceCollectionExtensions
 {
-   public static IServiceCollection AddDataAccess(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddApplicationDb(
+        this IServiceCollection services,
+        string connectionString,
+        IHostEnvironment env)
+    {
+
+        services.AddDbContext<DataContext>(options =>
         {
-            // Register DbContext with Azure SQL
-            services.AddDbContext<DataContext>(options =>
-                options.UseSqlServer(connectionString),
-            ServiceLifetime.Singleton);
+            if (env.IsEnvironment("Development"))
+            {
+                // Local dev: InMemory (no VPN/Azure required)
+                options.UseInMemoryDatabase("InMemoryDb");
+                 Console.WriteLine("Using Inmemorydb");
+            }
+            else
+            {
+                // Production: Azure SQL
+                options.UseSqlServer(connectionString);
+                Console.WriteLine("Using sql");
                 
+            }
+        });
 
-            // Register IDataContext
-            services.AddScoped<IDataContext, DataContext>();
+        services.AddScoped<IDataContext, DataContext>();
 
-            return services;
-        }
-   
+        return services;
+    }
 }

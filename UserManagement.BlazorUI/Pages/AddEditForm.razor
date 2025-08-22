@@ -43,7 +43,7 @@
 
     <button type="submit" class="btn btn-primary">@((id > 0) ? "Update" : "Submit")</button>
 
-    @if (!string.IsNullOrEmpty(errorMessage))   @* 🔹 Show error if email exists *@
+    @if (!string.IsNullOrEmpty(errorMessage))   
     {
         <div class="alert alert-danger mt-2">@errorMessage</div>
     }

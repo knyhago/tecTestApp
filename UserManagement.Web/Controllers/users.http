@@ -1,8 +1,12 @@
 # ---------------------------
 # Get all users
 # ---------------------------
-GET https://usermanagement-gacpf2b0hhfqhbfe.ukwest-01.azurewebsites.net/api/users
+GET https://localhost:7084/api/users
 Accept: application/json
+###
+GET https://usermanagement-gacpf2b0hhfqhbfe.ukwest-01.azurewebsites.net/api/logs
+Accept: application/json
+
 ###
 GET https://usermanagement-gacpf2b0hhfqhbfe.ukwest-01.azurewebsites.net/api/logs
 Accept: application/json

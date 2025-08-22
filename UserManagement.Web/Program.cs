@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using UserManagement.Data;
 using Westwind.AspNetCore.Markdown;
@@ -11,7 +12,7 @@ var connectionString = builder.Configuration.GetConnectionString("AzureSqlDb");
 
 builder.Services.AddCors();
 builder.Services
-    .AddDataAccess(connectionString!)
+    .AddApplicationDb(connectionString!,builder.Environment)
     .AddDomainServices()
     .AddMarkdown()
     .AddControllersWithViews();
@@ -26,7 +27,18 @@ Log.Logger = new LoggerConfiguration()
 var app = builder.Build();
 app.UseMarkdown();
 
-app.Services.MigrateDb();
+using var scope = app.Services.CreateScope();
+var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+if (context.Database.IsRelational())
+{
+    context.Database.Migrate();
+}
+else
+{
+    DataContextSeed.Seed(context); // ✅ seed InMemory
+}
+
 app.UseHsts();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
