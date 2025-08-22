@@ -11,12 +11,12 @@ public class User
 
     [Required(ErrorMessage = "Forename is required")]
     [MaxLength(25, ErrorMessage = "Forename cannot exceed 25 characters")]
-    [RegularExpression(@"^[A-Za-z]+$", ErrorMessage = "Forename can only contain letters")]
+    [RegularExpression(@"^[A-Za-z ]+$", ErrorMessage = "Forename can only contain letters")]
     public string Forename { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Surname is required")]
     [MaxLength(25, ErrorMessage = "Surname cannot exceed 25 characters")]
-    [RegularExpression(@"^[A-Za-z]+$", ErrorMessage = "Surname can only contain letters")]
+    [RegularExpression(@"^[A-Za-z ]+$", ErrorMessage = "Surname can only contain letters")]
     public string Surname { get; set; } = string.Empty;
 
 

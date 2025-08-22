@@ -21,7 +21,7 @@ public record class UserDto(
         0,               // Id
         string.Empty,    // Forename
         string.Empty,    // Surname
-        DateOnly.MinValue, // DateOfBirth
+        DateOnly.FromDateTime(DateTime.Today), // DateOfBirth
         string.Empty,    // Email
         true        // IsActive default
     ) { }
