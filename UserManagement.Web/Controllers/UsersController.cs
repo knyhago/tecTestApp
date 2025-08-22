@@ -86,6 +86,7 @@ public class UsersController : Controller
         return RedirectToAction("List");
     }
 
+
      [HttpGet("delete/{id}")]
     public async Task<IActionResult> DeleteUser(int id)
     {

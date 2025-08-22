@@ -14,7 +14,8 @@ public record class UserDto(
      [Required(ErrorMessage = "Email is required")]
      [EmailAddress(ErrorMessage = "Enter Valid Email")] string Email ,
 
-     [Required(ErrorMessage = "Forename is required")]bool IsActive 
+     [Required(ErrorMessage = "Forename is required")]bool IsActive
+      
 ){
     public UserDto() : this(
         0,               // Id
@@ -22,7 +23,7 @@ public record class UserDto(
         string.Empty,    // Surname
         DateOnly.MinValue, // DateOfBirth
         string.Empty,    // Email
-        true             // IsActive default
+        true        // IsActive default
     ) { }
 };
 

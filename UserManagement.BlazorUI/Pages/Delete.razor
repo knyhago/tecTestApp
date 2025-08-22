@@ -1,0 +1,56 @@
+﻿@using UserManagement.Contracts.DTOS
+@inject HttpClient HttpClient
+
+<div class="modal fade" id="@ModalId(user)" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">@GetTitle()</h1>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger"
+                @onclick="() => confirmDelete(user.Id)" 
+                data-bs-dismiss="modal">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@code {
+    [Parameter] public required UserDto user { get; set; }
+    [Parameter] public EventCallback<long> OnDeleted { get; set; }
+
+    private string title = "";
+
+    protected override void OnParametersSet()
+    {
+        title = user.Forename;
+    }
+
+    public static string ModalId(UserDto user) => $"deleteuser-{user.Id}";
+    public string GetTitle() => $"Delete {title}?";
+
+    private async Task confirmDelete(long id)
+    {
+        try
+        {
+            var response = await HttpClient.DeleteAsync($"/api/users/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Deleted user {id}");
+                await OnDeleted.InvokeAsync(id);  // 🔑 tell parent
+            }
+            else
+            {
+                Console.WriteLine($"Failed to delete user {id}: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting user {id}: {ex.Message}");
+        }
+    }
+}

@@ -3,8 +3,7 @@
 @using UserManagement.Data.Entities
 @inject HttpClient Http
 
-<h3>User Logs</h3>
-
+<h3>Logs of @title</h3>
 
 
 @if (logs is null)
@@ -52,11 +51,15 @@ else
     [Parameter] public int id { get; set; }
 
     private List<Log>? logs;
+    private string title="";
 
     protected override async Task OnParametersSetAsync()
     {
         // calls your API endpoint, e.g. /api/logs/user/{id}
        var log = await Http.GetFromJsonAsync<List<Log>>($"/api/logs/{id}");
+
+        title = log.FirstOrDefault().PerformedBy;
+    
 
         if(log is null)
         {
@@ -65,4 +68,5 @@ else
         logs=log;
 
     }
+    
 }

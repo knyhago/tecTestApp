@@ -1,7 +1,8 @@
 ﻿@model UserManagement.Data.Entities.Log
 
 <div class="d-flex justify-content-start gap-2 mb-3">
-   <a asp-action="ViewLogs" asp-controller="Log" asp-route-id="@Model.UserId" class="btn btn-secondary">Back</a>
+   <a asp-action="ViewLogs" asp-controller="Log" asp-route-id="@Model.UserId" class="btn btn-primary">Logs for this user</a>
+    <a asp-action="ViewAllLogs" asp-controller="Log" class="btn btn-primary">All Logs</a>
 </div>
 
 <table class="table table-striped table-bordered">

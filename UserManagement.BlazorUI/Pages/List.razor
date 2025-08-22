@@ -61,12 +61,17 @@ else
                                         <li>
                                             <NavLink class="dropdown-item" @onclick="()=>EditUser(user.Id)">Edit</NavLink>
                                         </li>
-                                        <li>
-                                            <NavLink class="dropdown-item" @onclick="() => DeleteUser(user.Id)">Delete</NavLink>
-                                        </li>
+                                        <button class="dropdown-item text-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="@GetModalId(user)">
+                                        Delete
+                                        </button>   
                                     </ul>
+
                                 }
                             </div>
+                            <Delete user="@user" OnDeleted="HandleDelete" />
+
                         </td>
                     </tr>
                 }
@@ -105,6 +110,20 @@ else
         }
     }
 
+     private string GetModalId(UserDto user)
+    {  
+    return $"#{Delete.ModalId(user)}"; 
+    }
+
+    private void HandleDelete(long id)
+{
+    // remove from both original & filtered lists
+    users = users?.Where(u => u.Id != id).ToArray();
+    FilteredUsers = FilteredUsers?.Where(u => u.Id != id).ToArray();
+
+    StateHasChanged(); // force UI refresh
+}
+
 
     private void ToggleDropdown(long userId)
     {
@@ -121,27 +140,7 @@ else
         navigation.NavigateTo($"/viewLogs/{id}"); 
     }
 
-    private async Task DeleteUser(long id)
-    {
-        try
-        {
-            var response = await HttpClient
-            .DeleteAsync($"/api/users/{id}");
-            
-            if (response.IsSuccessStatusCode)
-            {
-                FilteredUsers = FilteredUsers?.Where(u => u.Id != id).ToArray();
-            }
-            else
-            {
-                Console.WriteLine($"Failed to delete user {id}: {response.StatusCode}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error deleting user {id}: {ex.Message}");
-        }
-    }
+    
 
     private void ShowAll() => FilteredUsers = users;
     private void ShowActive() => FilteredUsers = users?.Where(u => u.IsActive).ToArray();
