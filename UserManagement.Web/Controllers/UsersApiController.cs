@@ -28,9 +28,9 @@ namespace UserManagement.Web.Controllers
                      u.Email, u.IsActive))
                 .ToList();
 
-            return Ok(users);  // returns JSON for Blazor
+            return Ok(users); 
         }
-         // GET: api/users/{id}
+        
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(long id)
         {
@@ -49,14 +49,14 @@ namespace UserManagement.Web.Controllers
             if (user == null) return NotFound();
 
             await _userService.DeleteUserAsync(user);
-            return NoContent();  // 204, perfect for HttpClient.DeleteAsync
+            return NoContent(); 
         }
 
-         // PUT: api/users/{id}
+    
         
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(long id, [FromBody] User user)
-    {
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(long id, [FromBody] User user)
+        {
         var existingUser = await _userService.GetUserByIdAsync(id);
         if (existingUser == null) return NotFound();
 
@@ -82,12 +82,12 @@ namespace UserManagement.Web.Controllers
         return NoContent();
     }
 
-        // POST: api/users
+        
     [HttpPost("add")]
         
     public async Task<IActionResult> Create(User user)
     {
-        // Check if email already exists
+        //if email already exists
         var exists = (await _userService.GetAllAsync())
                     .Any(u => u.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase));
 
@@ -99,9 +99,6 @@ namespace UserManagement.Web.Controllers
         await _userService.AddAsync(user);
         return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
     }
-
-
-
     }
 
     

@@ -13,7 +13,7 @@ namespace UserManagement.Services.Domain.Implementations;
 
 public class UserService : IUserService
 {
-    private readonly IDataContext _dataAccess;
+   private readonly IDataContext _dataAccess;
    private readonly ILogger<User> _logger;
 
    private readonly ILogService _logService;

@@ -20,10 +20,6 @@ public class DataContext : DbContext, IDataContext
 
     public DbSet<Log> UserLogs { get; set; }
 
-
-    // protected override void OnConfiguring(DbContextOptionsBuilder options)
-    //     => options.UseInMemoryDatabase("UserManagement.Data.DataContext");
-
     protected override void OnModelCreating(ModelBuilder model)
         { 
         model.Entity<User>()
@@ -48,9 +44,6 @@ public class DataContext : DbContext, IDataContext
         });
         }
 
-   
-
-    
     public async Task<List<TEntity>> GetAll<TEntity>() where TEntity : class
     {
     return await Set<TEntity>()
@@ -66,8 +59,6 @@ public class DataContext : DbContext, IDataContext
                                                                             // or return null if none exists. Do it asynchronously, and don’t track the entity."
 
     }
-
-
 
     public async Task Create<TEntity>(TEntity entity) where TEntity : class
     {

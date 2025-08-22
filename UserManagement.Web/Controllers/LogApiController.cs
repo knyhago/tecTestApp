@@ -19,7 +19,7 @@ namespace UserManagement.Web.Controllers
         {
             var users =await _logService.GetLogsAsync();
 
-            return Ok(users);  // returns JSON for Blazor
+            return Ok(users); 
         }
 
         [HttpGet("{id}")]
@@ -29,7 +29,7 @@ namespace UserManagement.Web.Controllers
 
             var users=items.Where(x=>x.UserId==id);
 
-            return Ok(users);  // returns JSON for Blazor
+            return Ok(users);
         }
 
          [HttpPost("addLog")]

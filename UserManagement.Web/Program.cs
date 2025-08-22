@@ -20,23 +20,16 @@ builder.Services.AddControllers();
     
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
-    .WriteTo.Console()    // logs to console
-    //.WriteTo.MSSqlServer(connectionString, "Logs") // optional DB logging
+    .WriteTo.Console()
     .CreateLogger();
 
 var app = builder.Build();
-
-
-
 app.UseMarkdown();
 
 app.Services.MigrateDb();
-
 app.UseHsts();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
-
 app.UseRouting();
 app.UseCors(policy => policy
     .AllowAnyOrigin()
