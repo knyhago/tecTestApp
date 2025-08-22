@@ -42,6 +42,11 @@
     </div>
 
     <button type="submit" class="btn btn-primary">@((id > 0) ? "Update" : "Submit")</button>
+
+    @if (!string.IsNullOrEmpty(errorMessage))   @* 🔹 Show error if email exists *@
+    {
+        <div class="alert alert-danger mt-2">@errorMessage</div>
+    }
 </EditForm>
 
 @code {
@@ -49,24 +54,31 @@
     public long id { get; set; }
 
     public User user { get; set; } = new();
+
+     public List<User> users { get; set; } = new();
+
+    private string? errorMessage;
     
 
     protected override async Task OnParametersSetAsync()
     {
-        if (id > 0)
+        try
         {
-            try
+            if (id > 0) // edit mode
             {
-                user = await HttpClient.GetFromJsonAsync<User>($"/api/users/{id}")
-                       ?? new User();
+                user = await HttpClient.GetFromJsonAsync<User>($"/api/users/{id}") ?? new User();
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading user: {ex.Message}");
-                user = new User();
-            }
+
+            // 🔹 Always load users (needed for duplicate check in Add mode too)
+            users = await HttpClient.GetFromJsonAsync<List<User>>($"/api/users/") ?? [];
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading user: {ex.Message}");
+            user = new User();
         }
     }
+
 
     private async Task HandleValidSubmit()
     {
@@ -81,11 +93,22 @@
             }
             else // add
             {
+                 bool emailExists = users.Any(x => 
+                    x.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase));
+
+
+                if(emailExists)
+                {
+                     errorMessage = $"Email '{user.Email}' already exists.";
+                    return;             
+                }
+                
                 response = await HttpClient.PostAsJsonAsync("/api/users/add", user);
             }
 
             if (response.IsSuccessStatusCode)
             {
+                errorMessage = null;
                 Console.WriteLine(id > 0 ? "User updated successfully" : "User added successfully");
                 NavigationManager.NavigateTo("userList");
             }

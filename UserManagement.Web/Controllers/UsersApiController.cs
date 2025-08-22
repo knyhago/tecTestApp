@@ -53,30 +53,52 @@ namespace UserManagement.Web.Controllers
         }
 
          // PUT: api/users/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(long id, [FromBody] User user)
+        
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(long id, [FromBody] User user)
+    {
+        var existingUser = await _userService.GetUserByIdAsync(id);
+        if (existingUser == null) return NotFound();
+
+        // Only check uniqueness if email is changed
+        if (!string.Equals(existingUser.Email, user.Email, StringComparison.OrdinalIgnoreCase))
         {
-            var existingUser =await _userService.GetUserByIdAsync(id);
-            if (existingUser == null) return NotFound();
+            var exists = (await _userService.GetAllAsync())
+                        .Any(u => u.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase));
 
-            existingUser.Forename = user.Forename;
-            existingUser.Surname = user.Surname;
-            existingUser.Email = user.Email;
-            existingUser.IsActive = user.IsActive;
-            existingUser.DateOfBirth = user.DateOfBirth;
-
-            await _userService.UpdateUserAsync(existingUser);
-            return NoContent();
+            if (exists)
+            {
+                return BadRequest("Email already exists.");
+            }
         }
+
+        existingUser.Forename = user.Forename;
+        existingUser.Surname = user.Surname;
+        existingUser.Email = user.Email;
+        existingUser.IsActive = user.IsActive;
+        existingUser.DateOfBirth = user.DateOfBirth;
+
+        await _userService.UpdateUserAsync(existingUser);
+        return NoContent();
+    }
 
         // POST: api/users
-        [HttpPost("add")]
-        public async Task<IActionResult> Create( User user)
+    [HttpPost("add")]
+        
+    public async Task<IActionResult> Create(User user)
+    {
+        // Check if email already exists
+        var exists = (await _userService.GetAllAsync())
+                    .Any(u => u.Email.Equals(user.Email, StringComparison.OrdinalIgnoreCase));
+
+        if (exists)
         {
-            await _userService.AddAsync(user);
-            return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+            return BadRequest("Email already exists.");
         }
 
+        await _userService.AddAsync(user);
+        return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+    }
 
 
 

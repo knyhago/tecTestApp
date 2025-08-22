@@ -51,14 +51,14 @@ else
     [Parameter] public int id { get; set; }
 
     private List<Log>? logs;
-    private string title="";
+    private string title=" ";
 
     protected override async Task OnParametersSetAsync()
     {
         // calls your API endpoint, e.g. /api/logs/user/{id}
        var log = await Http.GetFromJsonAsync<List<Log>>($"/api/logs/{id}");
 
-        title = log.FirstOrDefault().PerformedBy;
+        title = log?.FirstOrDefault()? .PerformedBy??" ";
     
 
         if(log is null)
