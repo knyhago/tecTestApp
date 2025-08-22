@@ -106,37 +106,51 @@ public class UsersApiControllerTests
             result.Should().BeOfType<NotFoundResult>();
         }
 
-        [Fact]
-        public async Task Update_WhenUserExists_UpdatesAndReturnsNoContent()
-        {
-            // Arrange
-            var controller = CreateController();
-            var user = SetupUser(10);
-            _userService.Setup(s => s.GetUserByIdAsync(10)).ReturnsAsync(user);
+ [Fact]
+      
+public async Task Update_WhenUserExists_UpdatesAndReturnsNoContent()
+{
+    // Arrange
+    var controller = CreateController();
+    
+    var existingUser = SetupUser(10); // user in DB
+    var updatedUser = new User
+    {
+        Id = 10,
+        Forename = "Jane",
+        Surname = "Smith",
+        DateOfBirth = new DateOnly(1985, 5, 20),
+        Email = "jane@example.com",
+        IsActive = false
+    };
 
-            var updatedUser = new User
-            {
-                Id = 10,
-                Forename = "Jane",
-                Surname = "Smith",
-                DateOfBirth = new DateOnly(1985, 5, 20),
-                Email = "jane@example.com",
-                IsActive = false
-            };
+    // Mock existing users for duplicate check
+    _userService.Setup(s => s.GetAllAsync())
+                .ReturnsAsync(new List<User> { existingUser });
+    
+    // Mock fetching the user to update
+    _userService.Setup(s => s.GetUserByIdAsync(10))
+                .ReturnsAsync(existingUser);
 
-            // Act
-            var result = await controller.Update(10, updatedUser);
+    // Mock the update method
+    _userService.Setup(s => s.UpdateUserAsync(It.IsAny<User>()))
+                .Returns(Task.CompletedTask);
 
-            // Assert
-            result.Should().BeOfType<NoContentResult>();
-            _userService.Verify(s => s.UpdateUserAsync(It.Is<User>(u =>
-                u.Id == 10 &&
-                u.Forename == "Jane" &&
-                u.Surname == "Smith" &&
-                u.Email == "jane@example.com" &&
-                u.IsActive == false
-            )), Times.Once);
-        }
+    // Act
+    var result = await controller.Update(10, updatedUser);
+
+    // Assert
+    result.Should().BeOfType<NoContentResult>();
+    
+    _userService.Verify(s => s.UpdateUserAsync(It.Is<User>(u =>
+        u.Id == 10 &&
+        u.Forename == "Jane" &&
+        u.Surname == "Smith" &&
+        u.Email == "jane@example.com" &&
+        u.IsActive == false
+    )), Times.Once);
+}
+
 
         [Fact]
         public async Task Update_WhenUserDoesNotExist_ReturnsNotFound()
@@ -159,6 +173,7 @@ public class UsersApiControllerTests
             var controller = CreateController();
             var newUser = SetupUser(100);
 
+           _userService.Setup(s => s.GetAllAsync()).ReturnsAsync(new List<User>());
             _userService.Setup(s => s.AddAsync(newUser)).Returns(Task.CompletedTask);
 
             // Act
